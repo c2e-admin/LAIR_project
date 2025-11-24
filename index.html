@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAIR: Master Plan & Brand Bible</title>
+    <title>LAIR: Інвестиційна Пропозиція</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,32 +11,34 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- FontAwesome (Icons) -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        graphite: '#1a1a1a',      // Darker background
-                        graphiteLight: '#2d2d2d', // Card background
-                        sunsetRed: '#E05A47',     // Accent
-                        sunsetGlow: 'rgba(224, 90, 71, 0.3)',
-                        textWhite: '#F5F5F5',
-                        textGrey: '#a0a0a0'
+                        bgDark: '#0f0f0f',        // Almost black
+                        bgCard: '#1f1f1f',        // Dark grey
+                        accent: '#E05A47',        // Sunset Red
+                        accentHover: '#c04d3d',
+                        textMain: '#F5F5F5',
+                        textMuted: '#9ca3af',
+                        success: '#10B981',
+                        border: '#333333'
                     },
                     fontFamily: {
                         display: ['Oxanium', 'sans-serif'],
                         body: ['Inter', 'sans-serif'],
                     },
-                    boxShadow: {
-                        'glow': '0 0 15px rgba(224, 90, 71, 0.2)',
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
                     }
                 }
             }
@@ -44,411 +46,296 @@
     </script>
 
     <style>
-        body {
-            background-color: #1a1a1a;
-            color: #F5F5F5;
+        body { background-color: #0f0f0f; color: #F5F5F5; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f0f0f; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        
+        .glass-panel {
+            background: rgba(31, 31, 31, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1a1a1a; }
-        ::-webkit-scrollbar-thumb { background: #E05A47; border-radius: 4px; }
-
-        /* Typography Utilities */
-        .h-section { font-family: 'Oxanium', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-        .text-glow { text-shadow: 0 0 10px rgba(224, 90, 71, 0.5); }
-        
-        /* Components */
-        .card {
-            background-color: #2d2d2d;
-            border-left: 3px solid #E05A47;
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
-        }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-        
-        .nav-link {
-            cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
-            transition: all 0.2s;
+        .section-title {
             font-family: 'Oxanium', sans-serif;
-            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #E05A47;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
-        .nav-link:hover { background-color: rgba(224, 90, 71, 0.1); color: #E05A47; }
+
+        .h2-title {
+            font-family: 'Oxanium', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
         
-        .chart-container { position: relative; width: 100%; height: 300px; }
-        
-        /* Tables */
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th { text-align: left; padding: 0.75rem; background-color: #222; color: #E05A47; font-family: 'Oxanium', sans-serif; border-bottom: 1px solid #444; }
-        td { padding: 0.75rem; border-bottom: 1px solid #333; font-size: 0.9rem; color: #ddd; }
-        tr:hover td { background-color: #333; }
+        .btn-primary {
+            background-color: #E05A47;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.25rem;
+            font-family: 'Oxanium', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary:hover { background-color: #c04d3d; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(224, 90, 71, 0.3); }
+
+        .btn-outline {
+            border: 1px solid #444;
+            color: #ccc;
+            padding: 0.75rem 2rem;
+            border-radius: 0.25rem;
+            font-family: 'Oxanium', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-outline:hover { border-color: #E05A47; color: #E05A47; }
     </style>
 </head>
-<body class="font-body antialiased">
+<body class="font-body antialiased selection:bg-accent selection:text-white">
 
     <!-- NAVIGATION -->
-    <nav class="fixed top-0 w-full bg-graphite/95 backdrop-blur-md border-b border-gray-800 z-50">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <nav class="fixed top-0 w-full bg-bgDark/90 backdrop-blur-md border-b border-border z-50">
+        <div class="container mx-auto px-6 h-16 flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <div class="w-3 h-3 bg-sunsetRed rounded-full animate-pulse"></div>
-                <span class="font-display font-bold text-2xl text-white tracking-widest">LAIR</span>
+                <div class="w-8 h-8 bg-accent flex items-center justify-center font-bold text-black font-display rounded">L</div>
+                <span class="font-display font-bold text-xl tracking-wider">LAIR</span>
             </div>
-            <div class="hidden md:flex gap-4">
-                <a href="#concept" class="nav-link">Концепція</a>
-                <a href="#design" class="nav-link">Дизайн & ТЗ</a>
-                <a href="#marketing" class="nav-link">Маркетинг</a>
-                <a href="#operations" class="nav-link">Операційка</a>
-                <a href="#finance" class="nav-link text-sunsetRed">Фінанси</a>
+            <div class="hidden md:flex gap-8 text-sm font-medium text-textMuted">
+                <a href="#about" class="hover:text-white transition">Про Проект</a>
+                <a href="#market" class="hover:text-white transition">Ринок</a>
+                <a href="#finance" class="hover:text-white transition">Фінанси</a>
+                <a href="#roadmap" class="hover:text-white transition">План</a>
             </div>
+            <a href="#contact" class="hidden md:flex items-center gap-2 text-sm font-bold text-accent border border-accent/20 px-4 py-2 rounded hover:bg-accent/10 transition">
+                <i class="fa-brands fa-telegram"></i> Зв'язатися
+            </a>
         </div>
     </nav>
 
     <!-- HERO SECTION -->
-    <header class="pt-32 pb-20 px-4 text-center bg-gradient-to-b from-graphite to-[#222]">
-        <div class="container mx-auto max-w-4xl">
-            <h1 class="h-section text-5xl md:text-7xl text-white mb-4"><span class="text-sunsetRed text-glow">LAIR</span> GAMING LOUNGE</h1>
-            <p class="text-xl md:text-2xl text-textGrey font-light">"Твоє ігрове лігво. Твоя точка збору."</p>
-            <div class="mt-8 flex justify-center gap-4">
-                <div class="px-6 py-2 border border-sunsetRed rounded-full text-sunsetRed text-sm">Speakeasy Bunker</div>
-                <div class="px-6 py-2 border border-gray-600 rounded-full text-textGrey text-sm">Est. 2025</div>
+    <header class="pt-32 pb-20 px-6 relative overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-gradient-radial from-accent/10 to-transparent opacity-50 pointer-events-none"></div>
+        
+        <div class="container mx-auto max-w-5xl text-center relative z-10">
+            <div class="inline-block px-3 py-1 border border-gray-700 rounded-full text-xs text-textMuted mb-6 font-mono">
+                INVESTMENT PITCH DECK 2025
+            </div>
+            <h1 class="font-display text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                Майбутнє Гібридного <br>
+                <span class="text-accent">Геймінгу в Ірпені</span>
+            </h1>
+            <p class="text-xl text-textMuted max-w-2xl mx-auto mb-10 font-light">
+                LAIR — це не просто комп'ютерний клуб. Це високомаржинальний "Speakeasy" простір, що поєднує кіберспорт, преміальний сервіс та модель "Third Place".
+            </p>
+            <div class="flex flex-col md:flex-row justify-center gap-4">
+                <a href="#finance" class="btn-primary">
+                    <i class="fa-solid fa-chart-line"></i> Дивитись Цифри
+                </a>
+                <a href="#contact" class="btn-outline">
+                    <i class="fa-regular fa-handshake"></i> Обговорити Співпрацю
+                </a>
+            </div>
+            
+            <!-- Quick Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 border-t border-gray-800 pt-8">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-white font-display">13-15</div>
+                    <div class="text-xs text-textMuted uppercase tracking-wide mt-1">Місяців Окупності (ROI)</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-accent font-display">84%</div>
+                    <div class="text-xs text-textMuted uppercase tracking-wide mt-1">Маржинальність (VR)</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-white font-display">~335k ₴</div>
+                    <div class="text-xs text-textMuted uppercase tracking-wide mt-1">Виручка (MVP/Міс)</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-white font-display">24/7</div>
+                    <div class="text-xs text-textMuted uppercase tracking-wide mt-1">Режим Роботи</div>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 pb-20 space-y-24">
+    <main class="container mx-auto px-6 py-12 space-y-24">
 
-        <!-- 1. CONCEPT SECTION -->
-        <section id="concept">
-            <div class="flex items-end gap-4 mb-8 border-b border-gray-700 pb-4">
-                <h2 class="h-section text-3xl text-white">01 // Концепція</h2>
-                <span class="text-sunsetRed font-mono text-sm">PHILOSOPHY_DOC_V1.0</span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Philosophy -->
-                <div class="card">
-                    <h3 class="font-display text-xl text-white mb-4"><i class="fa-solid fa-heart text-sunsetRed mr-2"></i> Філософія "Третє Місце"</h3>
-                    <p class="text-textGrey mb-4">Ми створюємо простір між Домом та Роботою. Ми не продаємо "герци" чи "FPS". Ми продаємо атмосферу, комфорт та емоції від спільної гри.</p>
-                    <div class="grid grid-cols-2 gap-4 mt-6">
-                        <div class="bg-[#222] p-3 rounded text-center">
-                            <div class="text-sunsetRed font-bold">THE LOUNGE</div>
-                            <div class="text-xs text-textGrey">Для пар та відпочинку</div>
-                        </div>
-                        <div class="bg-[#222] p-3 rounded text-center">
-                            <div class="text-white font-bold">THE BARRACKS</div>
-                            <div class="text-xs text-textGrey">Для команд 5х5</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tone of Voice -->
-                <div class="card border-l-blue-500">
-                    <h3 class="font-display text-xl text-white mb-4"><i class="fa-solid fa-microphone text-blue-500 mr-2"></i> Tone of Voice</h3>
-                    <p class="text-textGrey mb-4">Ми — гостинний друг та інсайдер. Розслаблений, впевнений, з легким гумором.</p>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex gap-2">
-                            <span class="text-red-500"><i class="fa-solid fa-xmark"></i></span>
-                            <span class="text-gray-500 line-through">"Найпотужніше залізо! Тащи катку!"</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <span class="text-green-500"><i class="fa-solid fa-check"></i></span>
-                            <span class="text-white">"Диван для Mortal Kombat вже чекає. Заходь на каву."</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Brand Colors -->
-            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="h-24 rounded bg-[#2d2d2d] flex items-center justify-center border border-gray-600">
-                    <span class="font-mono text-sm">GRAPHITE #2d2d2d</span>
-                </div>
-                <div class="h-24 rounded bg-[#E05A47] flex items-center justify-center text-black font-bold shadow-[0_0_15px_rgba(224,90,71,0.4)]">
-                    <span class="font-mono text-sm">SUNSET RED #E05A47</span>
-                </div>
-                <div class="h-24 rounded bg-[#F5F5F5] flex items-center justify-center text-black font-bold">
-                    <span class="font-mono text-sm">WARM WHITE #F5F5F5</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- 2. DESIGN & BUILD SECTION -->
-        <section id="design">
-            <div class="flex items-end gap-4 mb-8 border-b border-gray-700 pb-4">
-                <h2 class="h-section text-3xl text-white">02 // Дизайн & ТЗ</h2>
-                <span class="text-sunsetRed font-mono text-sm">BUILD_SPECS_V2.1</span>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Lighting Spec -->
-                <div class="card lg:col-span-1">
-                    <h3 class="font-display text-xl text-sunsetRed mb-4">Концепція Освітлення</h3>
-                    <ul class="space-y-4 text-sm text-textGrey">
-                        <li>
-                            <strong class="text-white block mb-1">Правило №1: NO General Light</strong>
-                            Жодного верхнього загального світла. Тільки зоноване.
-                        </li>
-                        <li>
-                            <strong class="text-white block mb-1">Функціональне (2700K)</strong>
-                            Чорні трекові світильники. Тільки над столами/баром.
-                        </li>
-                        <li>
-                            <strong class="text-white block mb-1">Акцентне (Ember Red)</strong>
-                            LED-стрічка 1800K-2400K (Dim-to-Warm). Ефект "тліючого вугілля" за моніторами та під баром.
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Technical Task Table -->
-                <div class="card lg:col-span-2">
-                    <h3 class="font-display text-xl text-white mb-4">ТЗ по Зонах (100 м²)</h3>
-                    <div class="overflow-x-auto">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Зона</th>
-                                    <th>Атмосфера</th>
-                                    <th>Ключові Дії Будівельників</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="font-bold text-white">Z-01: Шлюз</td>
-                                    <td>"Портал"</td>
-                                    <td>Прихований профіль LED в підлозі ("Злітна смуга").</td>
-                                </tr>
-                                <tr>
-                                    <td class="font-bold text-white">Z-02: THE CORE</td>
-                                    <td>Соціальний Хаб</td>
-                                    <td>Виводи 220V/12V для бару. Трекові системи над воркспейсом.</td>
-                                </tr>
-                                <tr>
-                                    <td class="font-bold text-white">Z-03: ARENA</td>
-                                    <td>Брутальний відсік</td>
-                                    <td><strong>Звукоізоляція 100мм!</strong> Виводи 12V на стінах (1.5м).</td>
-                                </tr>
-                                <tr>
-                                    <td class="font-bold text-white">Z-04: LOUNGE</td>
-                                    <td>Приватні кабіни</td>
-                                    <td>Зведення перегородок (1.3м). М'яка оббивка задніх стін.</td>
-                                </tr>
-                                <tr>
-                                    <td class="font-bold text-white">Z-05: HOLODECK</td>
-                                    <td>VR Безпека</td>
-                                    <td>М'яка підлога. Жодних розеток на стінах до 2.2м.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. STRATEGY & MARKETING -->
-        <section id="marketing">
-            <div class="flex items-end gap-4 mb-8 border-b border-gray-700 pb-4">
-                <h2 class="h-section text-3xl text-white">03 // Стратегія</h2>
-                <span class="text-sunsetRed font-mono text-sm">MARKET_OPS</span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Location Strategy -->
-                <div class="card">
-                    <h3 class="font-display text-xl text-white mb-4">Локація: "Хлібні крихти"</h3>
-                    <p class="text-sm text-textGrey mb-4">Проблема: Прихований вхід. Рішення: Перетворити шлях на квест.</p>
-                    <ol class="list-decimal list-inside space-y-3 text-sm text-white">
-                        <li><span class="text-sunsetRed font-bold">Якір:</span> Стильна вивіска на фасаді (тільки лого).</li>
-                        <li><span class="text-sunsetRed font-bold">Ворота:</span> Навігаційна стрілка.</li>
-                        <li><span class="text-sunsetRed font-bold">Шлях:</span> Червона LED-стрічка вздовж будинку.</li>
-                        <li><span class="text-sunsetRed font-bold">Вхід:</span> Двері "Космічного корабля" + Звук.</li>
-                    </ol>
-                </div>
-
-                <!-- Mobile Outpost -->
-                <div class="card bg-gradient-to-br from-[#2d2d2d] to-[#3a2020]">
-                    <h3 class="font-display text-xl text-sunsetRed mb-4"><i class="fa-solid fa-truck-fast"></i> LAIR Mobile Outpost</h3>
-                    <p class="text-sm text-textGrey mb-2">Маркетинговий десант для збору бази до відкриття.</p>
-                    <div class="grid grid-cols-2 gap-4 text-sm mt-4">
-                        <div class="bg-black/30 p-2 rounded">
-                            <div class="text-xs text-textGrey">Бюджет</div>
-                            <div class="font-bold text-white">~36 000 ₴</div>
-                        </div>
-                        <div class="bg-black/30 p-2 rounded">
-                            <div class="text-xs text-textGrey">Активи</div>
-                            <div class="font-bold text-white">Наявні (Інвертор, PS5, VR)</div>
-                        </div>
-                    </div>
-                    <ul class="mt-4 text-xs text-textGrey space-y-1">
-                        <li>• Чорний намет + Банер</li>
-                        <li>• Крісла-мішки + TV</li>
-                        <li>• Паніні-гриль + Лимонади</li>
-                        <li>• Ціль: 1000 підписників в Instagram</li>
+        <!-- 1. PROBLEM & SOLUTION -->
+        <section id="about" class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+                <div class="section-title">Концепція</div>
+                <h2 class="h2-title">Чому LAIR?</h2>
+                <div class="space-y-6 text-textMuted">
+                    <p>
+                        <strong class="text-white">Проблема ринку:</strong> Більшість клубів — це "шкільні" заклади з низьким чеком, відсутнім сервісом та "токсичною" атмосферою, що відлякує платоспроможну аудиторію (21+).
+                    </p>
+                    <p>
+                        <strong class="text-white">Рішення LAIR:</strong> Формат <span class="text-accent">"Speakeasy Bunker"</span>. Ми створюємо закритий клуб для "своїх". 
+                        Ми монетизуємо не тільки час за ПК, а й комфорт, напої та соціалізацію.
+                    </p>
+                    <ul class="space-y-2 mt-4">
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-success"></i> Гібридна модель: ПК + Консолі + VR + Бар</li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-success"></i> Високий чек (F&B складає 35% виручки)</li>
+                        <li class="flex items-center gap-3"><i class="fa-solid fa-check text-success"></i> Преміальна локація (Центр, біля McDonald's)</li>
                     </ul>
                 </div>
             </div>
+            <div class="bg-bgCard p-1 rounded-lg border border-border">
+                <div class="grid grid-cols-2 gap-1 h-full">
+                    <div class="bg-[#2a2a2a] p-6 rounded flex flex-col justify-center items-center text-center">
+                        <i class="fa-solid fa-gamepad text-4xl text-accent mb-4"></i>
+                        <h4 class="font-bold text-white mb-2">Геймінг</h4>
+                        <p class="text-xs text-textMuted">Найпотужніше залізо та приватні PS5 кімнати</p>
+                    </div>
+                    <div class="bg-[#2a2a2a] p-6 rounded flex flex-col justify-center items-center text-center">
+                        <i class="fa-solid fa-mug-hot text-4xl text-accent mb-4"></i>
+                        <h4 class="font-bold text-white mb-2">Сервіс</h4>
+                        <p class="text-xs text-textMuted">Авторські напої, чиста їжа, вейп-френдлі</p>
+                    </div>
+                    <div class="bg-[#2a2a2a] p-6 rounded flex flex-col justify-center items-center text-center col-span-2">
+                        <i class="fa-solid fa-users-viewfinder text-4xl text-accent mb-4"></i>
+                        <h4 class="font-bold text-white mb-2">Community</h4>
+                        <p class="text-xs text-textMuted">Турніри, івенти та закритий клуб</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <!-- 4. OPERATIONS & MENU -->
-        <section id="operations">
-            <div class="flex items-end gap-4 mb-8 border-b border-gray-700 pb-4">
-                <h2 class="h-section text-3xl text-white">04 // Операційка</h2>
-                <span class="text-sunsetRed font-mono text-sm">OPS_CHECKLIST</span>
+        <!-- 2. UNIT ECONOMICS -->
+        <section id="market">
+            <div class="text-center mb-12">
+                <div class="section-title">Економіка</div>
+                <h2 class="h2-title">Висока Маржинальність</h2>
+                <p class="text-textMuted">Кожна година роботи клубу є прибутковою. Собівартість години (з амортизацією) ~48 грн.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="glass-panel p-6 rounded-lg relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="text-lg font-bold text-white">PC Arena</div>
+                        <i class="fa-solid fa-desktop text-blue-500"></i>
+                    </div>
+                    <div class="text-3xl font-display font-bold text-white mb-1">43%</div>
+                    <div class="text-sm text-textMuted">Маржинальність</div>
+                    <div class="mt-4 pt-4 border-t border-gray-700 text-sm">
+                        <div class="flex justify-between mb-1"><span>Тариф:</span> <span class="text-white">85 ₴/год</span></div>
+                        <div class="flex justify-between"><span>Прибуток:</span> <span class="text-success">+37 ₴/год</span></div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-panel p-6 rounded-lg relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-accent"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="text-lg font-bold text-white">PS5 Lounge</div>
+                        <i class="fa-brands fa-playstation text-accent"></i>
+                    </div>
+                    <div class="text-3xl font-display font-bold text-white mb-1">73%</div>
+                    <div class="text-sm text-textMuted">Маржинальність</div>
+                    <div class="mt-4 pt-4 border-t border-gray-700 text-sm">
+                        <div class="flex justify-between mb-1"><span>Тариф:</span> <span class="text-white">180 ₴/год</span></div>
+                        <div class="flex justify-between"><span>Прибуток:</span> <span class="text-success">+132 ₴/год</span></div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-panel p-6 rounded-lg relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-purple-500"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="text-lg font-bold text-white">VR Holodeck</div>
+                        <i class="fa-solid fa-vr-cardboard text-purple-500"></i>
+                    </div>
+                    <div class="text-3xl font-display font-bold text-white mb-1">84%</div>
+                    <div class="text-sm text-textMuted">Маржинальність</div>
+                    <div class="mt-4 pt-4 border-t border-gray-700 text-sm">
+                        <div class="flex justify-between mb-1"><span>Тариф:</span> <span class="text-white">300 ₴/год</span></div>
+                        <div class="flex justify-between"><span>Прибуток:</span> <span class="text-success">+252 ₴/год</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. FINANCIAL MODEL -->
+        <section id="finance" class="bg-bgCard rounded-xl p-8 border border-border">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+                <div>
+                    <div class="section-title">Фінансова Модель</div>
+                    <h2 class="h2-title">Прогноз P&L (Базовий)</h2>
+                    <p class="text-textMuted text-sm max-w-xl">
+                        Розрахунок базується на консервативному сценарії завантаження (середнє ~35%) після виходу на планову потужність (3-й місяць).
+                    </p>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs text-textMuted uppercase mb-1">Чистий Прибуток / міс</div>
+                    <div class="text-3xl font-bold text-success font-display">+200 757 ₴</div>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Menu -->
-                <div class="card lg:col-span-1">
-                    <h3 class="font-display text-xl text-white mb-4">Меню "Припаси"</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <div class="text-sunsetRed font-bold text-sm uppercase mb-2">Фірмові Напої</div>
-                            <ul class="text-sm text-textGrey space-y-1">
-                                <li class="flex justify-between"><span>EMBER (Гренадін+Тонік)</span></li>
-                                <li class="flex justify-between"><span>GRAPHITE (Cold Brew+Тонік)</span></li>
-                                <li class="flex justify-between"><span>ENERGY CORE (Red Bull Mix)</span></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <div class="text-sunsetRed font-bold text-sm uppercase mb-2">Їжа (Clean Hand)</div>
-                            <ul class="text-sm text-textGrey space-y-1">
-                                <li>Паніні (Класика/Італійський)</li>
-                                <li>Французький Хот-дог</li>
-                                <li>Джеркі, Горішки, Снеки</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Legal Checklist -->
-                <div class="card lg:col-span-2">
-                    <h3 class="font-display text-xl text-white mb-4">Легалізація (Чек-ліст)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div class="space-y-2">
-                            <h4 class="font-bold text-sunsetRed">Реєстрація</h4>
-                            <div class="flex items-center gap-2"><i class="fa-regular fa-square-check text-green-500"></i> ФОП 2 група</div>
-                            <div class="flex items-center gap-2"><i class="fa-regular fa-square-check text-green-500"></i> КВЕД 93.29 (Розваги)</div>
-                            <div class="flex items-center gap-2"><i class="fa-regular fa-square-check text-green-500"></i> КВЕД 56.10 (Їжа/Ресторан)</div>
-                            <div class="flex items-center gap-2"><i class="fa-regular fa-square-check text-green-500"></i> КВЕД 47.11 (Торгівля)</div>
-                        </div>
-                        <div class="space-y-2">
-                            <h4 class="font-bold text-sunsetRed">Дозволи</h4>
-                            <div class="flex items-center gap-2"><i class="fa-regular fa-square-check text-green-500"></i> ПРРО (Каса)</div>
-                            <div class="flex items-center gap-2"><i class="fa-regular fa-square-check text-green-500"></i> Декларація ДСНС</div>
-                            <div class="flex items-center gap-2"><i class="fa-regular fa-square-check text-green-500"></i> Куточок споживача</div>
-                            <div class="flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-yellow-500"></i> Ліцензія на тютюн (для вейпів)</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 5. FINANCE SECTION (DATA VISUALIZATION) -->
-        <section id="finance">
-            <div class="flex items-end gap-4 mb-8 border-b border-gray-700 pb-4">
-                <h2 class="h-section text-3xl text-sunsetRed">05 // Фінанси</h2>
-                <span class="text-white font-mono text-sm">MASTER_FIN_MODEL</span>
-            </div>
-
-            <!-- UNIT ECONOMICS -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div class="bg-[#222] p-4 rounded border-t-2 border-blue-500">
-                    <div class="text-xs text-textGrey">Собівартість години</div>
-                    <div class="text-2xl font-bold text-white">48.2 ₴</div>
-                    <div class="text-xs text-textGrey mt-1">Повна амортизація + MOC</div>
-                </div>
-                <div class="bg-[#222] p-4 rounded border-t-2 border-gray-500">
-                    <div class="text-xs text-textGrey">Маржа PC (85₴)</div>
-                    <div class="text-2xl font-bold text-white">43%</div>
-                    <div class="text-xs text-green-500 mt-1">+36.8 ₴/год</div>
-                </div>
-                <div class="bg-[#222] p-4 rounded border-t-2 border-sunsetRed">
-                    <div class="text-xs text-textGrey">Маржа PS5 (180₴)</div>
-                    <div class="text-2xl font-bold text-sunsetRed">73%</div>
-                    <div class="text-xs text-green-500 mt-1">+131.8 ₴/год</div>
-                </div>
-                <div class="bg-[#222] p-4 rounded border-t-2 border-purple-500">
-                    <div class="text-xs text-textGrey">Маржа VR (300₴)</div>
-                    <div class="text-2xl font-bold text-purple-400">84%</div>
-                    <div class="text-xs text-green-500 mt-1">+251.8 ₴/год</div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Investment Chart -->
-                <div class="card">
-                    <h3 class="font-display text-xl text-white mb-4">Структура Інвестицій (~930k ₴)</h3>
-                    <div class="chart-container">
-                        <canvas id="investmentChart"></canvas>
+                <div class="lg:col-span-1">
+                    <h4 class="font-bold text-white mb-4 text-center">Структура Капіталовкладень</h4>
+                    <div class="chart-container h-64">
+                        <canvas id="investChart"></canvas>
                     </div>
-                    <div class="mt-4 text-center text-sm text-textGrey">
-                        Включає резерв 140к ₴ на перші місяці роботи
+                    <div class="text-center mt-4">
+                        <div class="text-2xl font-bold text-white">~930 500 ₴</div>
+                        <div class="text-xs text-textMuted">Загальні Інвестиції (вкл. Резерв)</div>
                     </div>
                 </div>
 
-                <!-- Revenue Forecast Chart -->
-                <div class="card">
-                    <h3 class="font-display text-xl text-white mb-4">Прогноз Доходів (Місяць)</h3>
-                    <div class="chart-container">
-                        <canvas id="revenueChart"></canvas>
-                    </div>
-                    <div class="mt-4 grid grid-cols-2 gap-4 text-center">
-                        <div>
-                            <div class="text-xs text-textGrey">MVP (Місяць 3)</div>
-                            <div class="font-bold text-white">~335 000 ₴</div>
-                        </div>
-                        <div>
-                            <div class="text-xs text-textGrey">LAIR 2.0</div>
-                            <div class="font-bold text-sunsetRed">~748 000 ₴</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- P&L Summary Table -->
-            <div class="card mt-8">
-                <h3 class="font-display text-xl text-white mb-4">P&L (Прибутки та Збитки) - Базовий Рівень</h3>
-                <div class="overflow-x-auto">
-                    <table>
-                        <thead>
+                <!-- Table -->
+                <div class="lg:col-span-2 overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-black/20 text-textMuted border-b border-gray-700">
                             <tr>
-                                <th>Стаття</th>
-                                <th class="text-right">Сума (₴)</th>
-                                <th>Коментар</th>
+                                <th class="text-left py-3 px-4">Стаття</th>
+                                <th class="text-right py-3 px-4">Сума (₴)</th>
+                                <th class="text-left py-3 px-4">Коментар</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>Загальний Дохід</td>
-                                <td class="text-right font-bold text-white">334 947 ₴</td>
-                                <td>База після "розкачки"</td>
+                        <tbody class="text-gray-300">
+                            <tr class="border-b border-gray-800">
+                                <td class="py-3 px-4 font-medium text-white">Виручка (Ігрові зони)</td>
+                                <td class="py-3 px-4 text-right">248 109 ₴</td>
+                                <td class="py-3 px-4 text-textMuted text-xs">Консервативне завантаження</td>
                             </tr>
-                            <tr>
-                                <td>Постійні Витрати (MOC)</td>
-                                <td class="text-right text-red-400">-111 000 ₴</td>
-                                <td>Оренда, ЗП, Податки</td>
+                            <tr class="border-b border-gray-800">
+                                <td class="py-3 px-4 font-medium text-white">Виручка (Бар/Товари)</td>
+                                <td class="py-3 px-4 text-right">86 838 ₴</td>
+                                <td class="py-3 px-4 text-textMuted text-xs">35% від ігрового доходу</td>
                             </tr>
-                            <tr>
-                                <td>Відсотки по кредиту</td>
-                                <td class="text-right text-red-400">-23 190 ₴</td>
-                                <td>3% від тіла</td>
+                            <tr class="bg-accent/5 border-b border-accent/20">
+                                <td class="py-3 px-4 font-bold text-white">ЗАГАЛЬНИЙ ДОХІД</td>
+                                <td class="py-3 px-4 text-right font-bold text-white">334 947 ₴</td>
+                                <td class="py-3 px-4 text-textMuted text-xs">Місячний оборот</td>
                             </tr>
-                            <tr class="bg-[#333]">
-                                <td class="font-bold text-white">ЧИСТИЙ ПРИБУТОК</td>
-                                <td class="text-right font-bold text-green-400">+200 757 ₴</td>
-                                <td>Вільний потік</td>
+                            <tr class="border-b border-gray-800">
+                                <td class="py-3 px-4">Операційні Витрати (OPEX)</td>
+                                <td class="py-3 px-4 text-right text-red-400">-111 000 ₴</td>
+                                <td class="py-3 px-4 text-textMuted text-xs">Оренда, ЗП, Податки, Комуналка</td>
                             </tr>
-                            <tr>
-                                <td>→ На тіло кредиту (70%)</td>
-                                <td class="text-right text-blue-400">140 530 ₴</td>
-                                <td>Окупність ~5.5 міс</td>
+                            <tr class="border-b border-gray-800">
+                                <td class="py-3 px-4">Обслуговування Боргу</td>
+                                <td class="py-3 px-4 text-right text-red-400">-23 190 ₴</td>
+                                <td class="py-3 px-4 text-textMuted text-xs">Відсотки (3%)</td>
                             </tr>
-                            <tr>
-                                <td>→ У фонд розвитку (30%)</td>
-                                <td class="text-right text-sunsetRed">60 227 ₴</td>
-                                <td>Реінвестиція</td>
+                            <tr class="border-b border-gray-800 bg-success/10">
+                                <td class="py-3 px-4 font-bold text-white">ЧИСТИЙ ПРИБУТОК</td>
+                                <td class="py-3 px-4 text-right font-bold text-success">+200 757 ₴</td>
+                                <td class="py-3 px-4 text-textMuted text-xs">EBITDA - %</td>
                             </tr>
                         </tbody>
                     </table>
@@ -456,110 +343,146 @@
             </div>
         </section>
 
-        <!-- 6. ROADMAP -->
-        <section id="roadmap" class="pb-20">
-            <div class="flex items-end gap-4 mb-8 border-b border-gray-700 pb-4">
-                <h2 class="h-section text-3xl text-white">06 // Roadmap</h2>
-                <span class="text-sunsetRed font-mono text-sm">GROWTH_PLAN</span>
+        <!-- 4. ROADMAP & RISK MITIGATION -->
+        <section id="roadmap">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div>
+                    <div class="section-title">Стратегія Росту</div>
+                    <h2 class="h2-title">Roadmap 70/30</h2>
+                    <p class="text-textMuted mb-6">
+                        Ми використовуємо модель "Снігового Кому". 30% чистого прибутку щомісяця реінвестується у розширення парку техніки, що збільшує дохід у наступному місяці.
+                    </p>
+                    
+                    <div class="space-y-6 relative pl-6 border-l border-gray-800">
+                        <div class="relative">
+                            <div class="absolute -left-[29px] top-1 w-3 h-3 rounded-full bg-blue-500"></div>
+                            <h4 class="font-bold text-white">Фаза 1: MVP (Міс 1-3)</h4>
+                            <p class="text-sm text-textMuted">Запуск 3 ПК / 2 PS5 / 1 VR. Вихід на точку беззбитковості та формування ядра клієнтів.</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-[29px] top-1 w-3 h-3 rounded-full bg-accent"></div>
+                            <h4 class="font-bold text-white">Фаза 2: Scale (Міс 4-12)</h4>
+                            <p class="text-sm text-textMuted">Реінвестиція у розширення: +1 VR, +2 PS5, +9 ПК. Вихід на максимальну потужність.</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-[29px] top-1 w-3 h-3 rounded-full bg-white"></div>
+                            <h4 class="font-bold text-white">Фаза 3: LAIR 2.0 (Фінал)</h4>
+                            <p class="text-sm text-textMuted">Дохід ~750 000 ₴/міс. Повне погашення інвестицій.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-bgCard p-6 rounded-xl border border-border">
+                    <h3 class="font-display text-xl text-white mb-4">Юридична Готовність</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-black/20 rounded">
+                            <span class="text-sm text-gray-300">ФОП 2 Група</span>
+                            <i class="fa-solid fa-circle-check text-success"></i>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-black/20 rounded">
+                            <span class="text-sm text-gray-300">КВЕДи (93.29, 56.10)</span>
+                            <i class="fa-solid fa-circle-check text-success"></i>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-black/20 rounded">
+                            <span class="text-sm text-gray-300">ПРРО (Каса)</span>
+                            <i class="fa-solid fa-circle-check text-success"></i>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-black/20 rounded">
+                            <span class="text-sm text-gray-300">Декларація ДСНС</span>
+                            <i class="fa-solid fa-circle-check text-success"></i>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-black/20 rounded">
+                            <span class="text-sm text-gray-300">Ліцензійне ПЗ (Senet/Windows)</span>
+                            <i class="fa-solid fa-circle-check text-success"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </section>
 
-            <div class="relative border-l-2 border-gray-700 ml-4 space-y-12">
-                <!-- Step 1 -->
-                <div class="relative pl-8">
-                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-500"></div>
-                    <h3 class="font-display text-xl text-white">Фаза 1: Відкриття (MVP)</h3>
-                    <p class="text-sm text-textGrey mt-1">Конфіг: 3 ПК / 2 PS5 / 1 VR</p>
-                    <p class="text-xs text-textGrey mt-2">Ціль: Вихід на беззбитковість (Місяць 2).</p>
+        <!-- 5. CONTACT & OFFER -->
+        <section id="contact" class="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 md:p-12 border border-accent/30 relative overflow-hidden text-center">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            
+            <div class="relative z-10 max-w-3xl mx-auto">
+                <h2 class="h2-title mb-6">Готові до Співпраці?</h2>
+                <p class="text-xl text-textMuted mb-8">
+                    Ми шукаємо фінансового партнера для масштабування бізнесу. Проект має чіткий бізнес-план, прораховані ризики та команду для реалізації.
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <a href="tel:+380751134428" class="bg-bgCard hover:bg-bgCard/80 p-4 rounded border border-border transition group">
+                        <i class="fa-solid fa-phone text-accent text-2xl mb-2 group-hover:scale-110 transition"></i>
+                        <div class="text-sm text-textMuted">Телефон</div>
+                        <div class="font-bold text-white">+380 75 113 44 28</div>
+                    </a>
+                    <a href="https://t.me/LAIR_admin" target="_blank" class="bg-bgCard hover:bg-bgCard/80 p-4 rounded border border-border transition group">
+                        <i class="fa-brands fa-telegram text-accent text-2xl mb-2 group-hover:scale-110 transition"></i>
+                        <div class="text-sm text-textMuted">Telegram</div>
+                        <div class="font-bold text-white">@LAIR_admin</div>
+                    </a>
+                    <a href="mailto:lair.pp.ua@gmail.com" class="bg-bgCard hover:bg-bgCard/80 p-4 rounded border border-border transition group">
+                        <i class="fa-solid fa-envelope text-accent text-2xl mb-2 group-hover:scale-110 transition"></i>
+                        <div class="text-sm text-textMuted">Email</div>
+                        <div class="font-bold text-white">lair.pp.ua@gmail.com</div>
+                    </a>
                 </div>
-
-                <!-- Step 2 -->
-                <div class="relative pl-8">
-                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-sunsetRed"></div>
-                    <h3 class="font-display text-xl text-white">Фаза 2: Преміум Апгрейд (Міс 4-8)</h3>
-                    <p class="text-sm text-textGrey mt-1">Ціль: +1 VR та +2 PS5</p>
-                    <p class="text-xs text-textGrey mt-2">Використання фонду розвитку для збільшення маржинальних зон.</p>
-                </div>
-
-                <!-- Step 3 -->
-                <div class="relative pl-8">
-                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white animate-pulse"></div>
-                    <h3 class="font-display text-xl text-white">Фаза 3: LAIR 2.0 (Фінал)</h3>
-                    <p class="text-sm text-textGrey mt-1">Конфіг: 12 ПК / 4 PS5 / 2 VR / 6 Лаунж</p>
-                    <p class="text-xs text-textGrey mt-2">Повне заповнення Арени (1 ПК кожні 1.3 міс). Дохід ~750к.</p>
-                </div>
+                
+                <button onclick="alert('Презентація завантажується...')" class="btn-primary w-full md:w-auto">
+                    <i class="fa-solid fa-download"></i> Завантажити Повний PDF План
+                </button>
             </div>
         </section>
 
     </main>
 
-    <footer class="bg-[#111] py-8 text-center border-t border-gray-800">
-        <div class="font-display text-2xl font-bold text-white mb-2">LAIR</div>
-        <p class="text-textGrey text-sm">CONFIDENTIAL MASTER PLAN © 2025</p>
+    <footer class="border-t border-border bg-black py-8">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-left">
+                <div class="font-display font-bold text-xl text-white">LAIR</div>
+                <div class="text-xs text-textMuted">Speakeasy Gaming Lounge</div>
+            </div>
+            <div class="text-xs text-textMuted text-center md:text-right">
+                © 2025 LAIR Project. Всі розрахунки є комерційною таємницею.<br>
+                Ірпінь, Україна.
+            </div>
+        </div>
     </footer>
 
-    <!-- JS Logic -->
+    <!-- JS Logic for Charts -->
     <script>
-        // Data Configuration
         const colors = {
-            graphite: '#2d2d2d',
-            red: '#E05A47',
-            white: '#F5F5F5',
-            grey: '#a0a0a0',
-            grid: '#444'
+            accent: '#E05A47',
+            blue: '#3B82F6',
+            purple: '#8B5CF6',
+            green: '#10B981',
+            grey: '#4B5563',
+            text: '#F5F5F5'
         };
 
-        Chart.defaults.color = colors.grey;
-        Chart.defaults.borderColor = colors.grid;
+        Chart.defaults.color = '#9ca3af';
+        Chart.defaults.borderColor = '#333';
         Chart.defaults.font.family = "'Inter', sans-serif";
 
-        // 1. Investment Chart
-        new Chart(document.getElementById('investmentChart'), {
+        // Investment Breakdown Chart
+        new Chart(document.getElementById('investChart'), {
             type: 'doughnut',
             data: {
-                labels: ['Приміщення (Ремонт)', 'Gamer Zone (ПК)', 'PS5 Zone', 'VR Zone', 'Резерв (Подушка)', 'Витрати на відкриття'],
+                labels: ['Ремонт/Приміщення (478k)', 'Обладнання (Gamer/PS5/VR) (152k)', 'Запуск/Маркетинг (160k)', 'Резервний Фонд (140k)'],
                 datasets: [{
-                    data: [478000, 58000, 52000, 42500, 140000, 160000], // Approx breakdown based on sum
-                    backgroundColor: ['#4B5563', '#3B82F6', '#E05A47', '#8B5CF6', '#10B981', '#F59E0B'],
-                    borderWidth: 0
+                    data: [478000, 152500, 160000, 140000],
+                    backgroundColor: [colors.grey, colors.accent, colors.blue, colors.green],
+                    borderWidth: 0,
+                    hoverOffset: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'right', labels: { color: colors.white } }
-                }
-            }
-        });
-
-        // 2. Revenue Chart
-        new Chart(document.getElementById('revenueChart'), {
-            type: 'bar',
-            data: {
-                labels: ['ПК Дохід', 'PS5 Дохід', 'VR Дохід', 'Бар/Товари'],
-                datasets: [
-                    {
-                        label: 'MVP (Старт)',
-                        data: [88332, 101322, 58455, 86838],
-                        backgroundColor: '#4B5563'
-                    },
-                    {
-                        label: 'LAIR 2.0 (Фінал)',
-                        data: [265000, 155880, 77940, 249410],
-                        backgroundColor: '#E05A47'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, grid: { color: '#333' } },
-                    x: { grid: { display: false } }
+                    legend: { position: 'right', labels: { color: colors.text, boxWidth: 12 } }
                 },
-                plugins: {
-                    legend: { labels: { color: colors.white } }
-                }
+                cutout: '70%'
             }
         });
     </script>
