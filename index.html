@@ -116,6 +116,13 @@
             display: none;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* PDF Specific Styles */
+        .pdf-page-break {
+            height: 0;
+            page-break-after: always;
+            break-after: page;
+        }
     </style>
 </head>
 <body class="font-body antialiased selection:bg-accent selection:text-white">
@@ -188,10 +195,13 @@
             </div>
         </header>
 
+        <!-- PAGE BREAK FOR PDF -->
+        <div class="html2pdf__page-break"></div>
+
         <main class="container mx-auto px-6 py-12 space-y-24 bg-[#0f0f0f]">
 
             <!-- 1. PROBLEM & SOLUTION -->
-            <section id="about" class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center break-inside-avoid">
+            <section id="about" class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div>
                     <div class="section-title">Концепція</div>
                     <h2 class="h2-title text-white">Чому LAIR?</h2>
@@ -231,8 +241,11 @@
                 </div>
             </section>
 
+            <!-- PAGE BREAK FOR PDF -->
+            <div class="html2pdf__page-break"></div>
+
             <!-- 2. UNIT ECONOMICS -->
-            <section id="market" class="break-inside-avoid">
+            <section id="market">
                 <div class="text-center mb-12">
                     <div class="section-title">Економіка</div>
                     <h2 class="h2-title text-white">Висока Маржинальність</h2>
@@ -287,8 +300,11 @@
                 </div>
             </section>
 
+            <!-- PAGE BREAK FOR PDF -->
+            <div class="html2pdf__page-break"></div>
+
             <!-- 3. FINANCIAL MODEL -->
-            <section id="finance" class="bg-bgCard rounded-xl p-8 border border-border break-inside-avoid">
+            <section id="finance" class="bg-bgCard rounded-xl p-8 border border-border">
                 <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
                     <div>
                         <div class="section-title">Фінансова Модель</div>
@@ -363,8 +379,11 @@
                 </div>
             </section>
 
+            <!-- PAGE BREAK FOR PDF -->
+            <div class="html2pdf__page-break"></div>
+
             <!-- 4. ROADMAP & RISK MITIGATION -->
-            <section id="roadmap" class="break-inside-avoid">
+            <section id="roadmap">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
                     <div>
                         <div class="section-title">Стратегія Росту</div>
@@ -421,7 +440,7 @@
             </section>
 
             <!-- 5. CONTACT & OFFER -->
-            <section id="contact" class="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 md:p-12 border border-accent/30 relative overflow-hidden text-center break-inside-avoid">
+            <section id="contact" class="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 md:p-12 border border-accent/30 relative overflow-hidden text-center">
                 <div class="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 
                 <div class="relative z-10 max-w-3xl mx-auto">
@@ -518,14 +537,17 @@
             // UI Feedback
             btnText.style.display = 'none';
             btnLoader.style.display = 'block';
+            
+            // Scroll to top to ensure capturing from start
+            window.scrollTo(0, 0);
 
             const opt = {
                 margin:       [0, 0, 0, 0], // Zero margins for better full-width look
                 filename:     'LAIR_Business_Plan_2025.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0f0f0f' }, // Ensure dark bg is captured
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
-                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+                html2canvas:  { scale: 1.5, useCORS: true, backgroundColor: '#0f0f0f', logging: false }, // Lowered scale for stability
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }, // Standard A4
+                pagebreak:    { mode: 'css', after: '.html2pdf__page-break' } // Explicit page breaks
             };
 
             // Generate PDF
