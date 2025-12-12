@@ -39,6 +39,7 @@
         .lair-input:focus {
             border-color: var(--color-sunset-red);
             box-shadow: 0 0 0 1px var(--color-sunset-red);
+            outline: none;
         }
 
         /* Accent Slider Styling (Red) */
@@ -67,6 +68,7 @@
         /* Button Styles */
         .lair-btn-primary {
             background-color: var(--color-sunset-red);
+            color: white;
             transition: background-color 0.2s, transform 0.1s;
         }
         .lair-btn-primary:hover {
@@ -87,6 +89,13 @@
             border-bottom: 3px solid var(--color-sunset-red);
             color: var(--color-sunset-red);
             font-weight: bold;
+        }
+        
+        /* Checkbox custom style */
+        input[type="checkbox"] {
+            accent-color: var(--color-sunset-red);
+            width: 1.25rem;
+            height: 1.25rem;
         }
     </style>
 </head>
@@ -159,23 +168,25 @@
                 <div class="space-y-8">
                     <div class="bg-neutral-600/30 p-4 rounded-lg">
                         <label class="flex items-center space-x-3 cursor-pointer">
-                            <input type="checkbox" id="operator" class="w-6 h-6 accent-color bg-gray-700 border-gray-600 rounded">
+                            <input type="checkbox" id="operator" class="w-6 h-6 rounded border-gray-600 bg-gray-700" checked>
                             <span class="text-xl font-semibold">Технічний адміністратор (Обов'язково для івентів > 6 одиниць)</span>
                         </label>
                         <div class="pl-9 mt-4 text-neutral-300">
                             <p class="mb-3">Адміністратор забезпечує налаштування, контроль обладнання та підтримку гостей.</p>
-                            <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-4 flex-wrap">
                                 <label class="text-lg">Години роботи (мін. 4 год):</label>
-                                <input type="range" id="hours" min="4" max="12" step="1" value="6" class="w-1/3">
-                                <span id="hoursVal" class="text-3xl font-extrabold accent-color">6</span>
-                                <span>годин</span>
+                                <div class="flex-grow max-w-md flex items-center gap-4">
+                                    <input type="range" id="hours" min="4" max="12" step="1" value="6" class="w-full">
+                                    <span id="hoursVal" class="text-3xl font-extrabold accent-color">6</span>
+                                    <span>годин</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="bg-neutral-600/30 p-4 rounded-lg">
                         <label class="flex items-center space-x-3 cursor-pointer mb-4">
-                            <input type="checkbox" id="delivery" class="w-6 h-6 accent-color bg-gray-700 border-gray-600 rounded" checked>
+                            <input type="checkbox" id="delivery" class="w-6 h-6 rounded border-gray-600 bg-gray-700" checked>
                             <span class="text-xl font-semibold">Монтаж/Демонтаж та Доставка</span>
                         </label>
                         
@@ -221,18 +232,20 @@
                     </div>
                 </form>
                 
-                <div id="validationError" class="error-message mt-4 hidden font-bold text-red-400">Помилка: Заповніть усі обов'язкові поля (Ім'я, Телефон, Дата).</div>
+                <div id="validationError" class="mt-4 hidden font-bold text-red-400 p-3 border border-red-500 rounded bg-red-900/20 text-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> Помилка: Заповніть обов'язкові поля (Ім'я, Телефон, Дата).
+                </div>
 
                 <div class="flex justify-between mt-8">
                     <button onclick="showTab(2)" class="lair-btn-primary py-3 px-6 rounded-lg text-lg bg-neutral-600 hover:bg-neutral-700"><i class="fas fa-arrow-left mr-2"></i> Назад</button>
-                    <button onclick="submitOrder()" class="lair-btn-primary py-4 px-8 rounded-lg text-xl"><i class="fas fa-paper-plane mr-2"></i> ПІДТВЕРДИТИ ЗАМОВЛЕННЯ</button>
+                    <button onclick="submitOrder()" class="lair-btn-primary py-4 px-8 rounded-lg text-xl font-bold"><i class="fas fa-paper-plane mr-2"></i> ПІДТВЕРДИТИ ЗАМОВЛЕННЯ</button>
                 </div>
             </div>
             
-            <div class="text-center">
+            <div class="text-center pt-4">
                 <button id="toggleSettings" class="text-sm text-neutral-500 hover:text-neutral-300 underline"><i class="fas fa-cog mr-1"></i> Налаштувати базові ціни</button>
             </div>
-            <div id="settingsPanel" class="hidden card p-4 rounded-xl text-sm">
+            <div id="settingsPanel" class="hidden card p-4 rounded-xl text-sm mt-4">
                 <h3 class="font-bold mb-3 accent-color">Базові ціни оренди за 1 одиницю (грн/доба)</h3>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <label class="block">Ноутбук: <input type="number" id="basePriceLaptop" value="1500" min="0" class="w-full lair-input px-2 py-1"></label>
@@ -291,6 +304,10 @@
     </div>
 
     <script>
+        // --- Configuration ---
+        // ЗАМІНІТЬ ЦЕЙ URL НА ВАШ GOOGLE APPS SCRIPT WEB APP URL
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpxXWq8zhMM0ifO_cgZavHgrUq96RhlNy4aLA5qL0enEFpX4Luk7Xgf88S8s-cpHvlWg/exec'; 
+
         // --- State and Logic ---
         const state = {
             laptops: 4, ps5: 2, vr: 1, tv: 2,
@@ -352,7 +369,7 @@
             
             // LOGIC FIX: Minimum 4 hours if operator is selected
             state.hours = state.operator ? Math.max(parseInt(inputs.hours.value) || 4, 4) : 0;
-            inputs.hours.min = state.operator ? 4 : 0; // Enforce minimum 4 hours
+            inputs.hours.min = state.operator ? 4 : 0; 
             if (state.operator && parseInt(inputs.hours.value) < 4) {
                  inputs.hours.value = 4;
                  state.hours = 4;
@@ -432,9 +449,8 @@
             return isValid;
         }
 
-        function submitOrder() {
+        async function submitOrder() {
             if (!validateForm()) {
-                alert("Будь ласка, заповніть усі обов'язкові поля для оформлення замовлення.");
                 return;
             }
 
@@ -443,7 +459,6 @@
             const finalTotal = parseFloat(displays.finalTotal.innerText.replace(/[ ₴]/g, ''));
             
             const orderData = {
-                // Client Info
                 'ClientName': inputs.clientName.value.trim(),
                 'ClientPhone': inputs.clientPhone.value.trim(),
                 'ClientEmail': inputs.clientEmail.value.trim(),
@@ -451,7 +466,6 @@
                 'EventDate': inputs.eventDate.value,
                 'EventNotes': inputs.eventNotes.value.trim(),
                 
-                // Equipment & Financials (detailed)
                 'EquipDetails': {
                     'Laptops': state.laptops, 'PS5': state.ps5, 'VR': state.vr, 'TVs': state.tv,
                     'EquipTotal': parseFloat(displays.equipTotal.innerText.replace(/[ ₴]/g, ''))
@@ -464,7 +478,6 @@
                     'DeliveryTotal': parseFloat(displays.deliveryTotal.innerText.replace(/[ ₴]/g, ''))
                 },
 
-                // Summary
                 'Subtotal': parseFloat(displays.subtotal.innerText.replace(/[ ₴]/g, '')),
                 'DiscountPercent': state.discount,
                 'DiscountAmount': parseFloat(displays.discountAmount.innerText.replace(/[^0-9]/g, '')),
@@ -472,37 +485,41 @@
                 'Timestamp': new Date().toISOString()
             };
 
-            console.log('--- Order Data to Send (JSON) ---', orderData);
+            // Visual feedback - loading state
+            const submitBtn = document.querySelector('button[onclick="submitOrder()"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Обробка...';
+            submitBtn.disabled = true;
 
-            // ----------------------------------------------------------------------
-            // !!! PLACEHOLDER FOR SECURE BACKEND/PROXY SUBMISSION !!!
-            // (Use a server-side endpoint to protect your Google Apps Script URL)
-            // Example:
-            /*
-            fetch('/api/submit-lair-order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData)
-            })
-            .then(response => {
-                // Handle success
-            })
-            .catch(error => {
-                // Handle error
-            });
-            */
-            // ----------------------------------------------------------------------
+            try {
+                 const response = await fetch(APPS_SCRIPT_URL, {
+                     method: 'POST',
+                     mode: 'no-cors', 
+                     headers: {
+                         'Content-Type': 'application/json',
+                     },
+                     body: JSON.stringify(orderData)
+                 });
 
-            // --- Simulated Success ---
-            alert(`✅ Замовлення на суму ${finalTotal.toLocaleString()} ₴ прийнято! Менеджер LAIR зв'яжеться з Вами найближчим часом.`);
-            document.getElementById('orderForm').reset();
-            calculate();
-            showTab(1); // Reset to first tab
+                 alert(`✅ Замовлення на суму ${finalTotal.toLocaleString()} ₴ прийнято! Менеджер LAIR зв'яжеться з Вами.`);
+                 
+                 document.getElementById('orderForm').reset();
+                 // Reset defaults
+                 inputs.laptops.value = 4;
+                 inputs.ps5.value = 2;
+                 calculate();
+                 showTab(1); 
+
+            } catch (error) {
+                console.error('Error submitting order:', error);
+                alert('⚠️ Виникла помилка. Будь ласка, скопіюйте кошторис і зв\'яжіться з нами.');
+            } finally {
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            }
         }
 
         function copyToClipboard() {
-            // This function remains the same as it doesn't contain sensitive logic, 
-            // but uses the improved state variables for a clean message.
             const finalTotalText = displays.finalTotal.innerText;
             const subtotal = parseFloat(displays.subtotal.innerText.replace(/[ ₴]/g, ''));
             const discountAmount = parseFloat(displays.discountAmount.innerText.replace(/[^0-9]/g, ''));
@@ -527,6 +544,8 @@
             
             navigator.clipboard.writeText(text).then(() => {
                 alert("Кошторис скопійовано в буфер обміну!");
+            }).catch(err => {
+                alert("Не вдалося скопіювати автоматично. Будь ласка, виділіть текст і скопіюйте вручну.");
             });
         }
 
@@ -534,33 +553,32 @@
 
         // Listen for changes on all relevant inputs
         Object.values(inputs).forEach(input => {
-             // Attach event listeners to trigger calculation on input change
-             if (input.type === 'range' || input.type === 'number' || input.type === 'checkbox' || input.tagName === 'SELECT') {
+             // Attach event listeners
+             if (input.type === 'range' || input.type === 'checkbox' || input.tagName === 'SELECT') {
                  input.addEventListener('input', calculate);
              }
              if (input.type === 'number') {
-                 input.addEventListener('change', calculate); // For base price settings
+                 input.addEventListener('change', calculate);
              }
         });
         
-        // Specific listener for operator checkbox to reset hours correctly
+        // Listener for operator to reset hours
         inputs.operator.addEventListener('change', () => {
              if (inputs.operator.checked) {
-                 inputs.hours.value = 6; // Set to default 6 when checked
+                 inputs.hours.value = 6; 
              } else {
                  inputs.hours.value = 0;
              }
              calculate();
         });
 
-        // Toggle settings panel
         document.getElementById('toggleSettings').addEventListener('click', () => {
             document.getElementById('settingsPanel').classList.toggle('hidden');
         });
 
         // Initial setup
         calculate();
-        showTab(1); // Start on the first tab
+        showTab(1); 
     </script>
 </body>
 </html>
