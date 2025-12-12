@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Преміум Калькулятор Оренди Девайсів</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <main>
+        <h1>🎮 Калькулятор Преміум Оренди</h1>
+        <form id="orderForm" data-items="" data-final-price="0" data-deposit-amount="0" data-time-unit="">
+
+            <section class="rental-type-selection">
+                <h2>1. Тип Оренди та Час</h2>
+                <div class="radio-group">
+                    <input type="radio" id="rentalTypeHourly" name="rentalType" value="hourly" checked onclick="calculatePrice()">
+                    <label for="rentalTypeHourly" class="radio-card">
+                        <h3>Погодинна</h3>
+                        <p>Від 4 годин. Низький поріг входу.</p>
+                    </label>
+
+                    <input type="radio" id="rentalTypeDaily" name="rentalType" value="daily" onclick="calculatePrice()">
+                    <label for="rentalTypeDaily" class="radio-card">
+                        <h3>Добова</h3>
+                        <p>Від 1 дня. Знижки на довгий термін.</p>
+                    </label>
+                </div>
+                
+                <div class="time-input-group">
+                    <input type="number" id="durationTime" min="1" value="1" onchange="calculatePrice()">
+                    <label for="durationTime"><span id="timeUnitLabel">днів</span> оренди</label>
+                </div>
+            </section>
+
+            <section class="section-devices">
+                <h2>2. Комплектація Замовлення</h2>
+                <div class="device-list">
+                    
+                    <div class="device-card" data-device-id="laptop">
+                        <label for="qtyLaptop">💻 Ноутбук RTX 5070</label>
+                        <input type="number" id="qtyLaptop" min="0" value="0" onchange="calculatePrice()">
+                    </div>
+
+                    <div class="device-card" data-device-id="ps5">
+                        <label for="qtyPS5">🕹️ PS5</label>
+                        <input type="number" id="qtyPS5" min="0" value="0" onchange="calculatePrice()">
+                    </div>
+
+                    <div class="device-card" data-device-id="vr">
+                        <label for="qtyVR">👓 VR-комплект</label>
+                        <input type="number" id="qtyVR" min="0" value="0" onchange="calculatePrice()">
+                    </div>
+
+                    <div class="device-card" data-device-id="tv">
+                        <label for="qtyTV">📺 TV 50'</label>
+                        <input type="number" id="qtyTV" min="0" value="0" onchange="calculatePrice()">
+                    </div>
+                    
+                    <div class="device-card" data-device-id="monitor">
+                        <label for="qtyMonitor">🖥️ Монітор ігровий</label>
+                        <input type="number" id="qtyMonitor" min="0" value="0" onchange="calculatePrice()">
+                    </div>
+
+                    <div class="device-card" data-device-id="chair">
+                        <label for="qtyChair">🪑 Крісло ігрове</label>
+                        <input type="number" id="qtyChair" min="0" value="0" onchange="calculatePrice()">
+                    </div>
+                    
+                    <div class="device-card" data-device-id="table">
+                        <label for="qtyTable">📐 Стіл ігровий</label>
+                        <input type="number" id="qtyTable" min="0" value="0" onchange="calculatePrice()">
+                    </div>
+
+                    <div class="device-card" data-device-id="ups">
+                        <label for="qtyUPS">🔋 ДБЖ</label>
+                        <input type="number" id="qtyUPS" min="0" value="0" onchange="calculatePrice()">
+                    </div>
+                    
+                </div>
+            </section>
+
+            <section class="section-client">
+                <h2>3. Ваші Контакти та Логістика</h2>
+                <input type="text" id="clientName" placeholder="Ваше Ім'я та Прізвище (Тільки літери)" required>
+                <input type="tel" id="clientPhone" placeholder="Номер Телефону (+380XXXXXXXXX)" required>
+                
+                <select id="clientCity" required onchange="calculatePrice()">
+                    <option value="">Оберіть місто доставки*</option>
+                    <option value="Kyiv">Київ</option>
+                    <option value="Irpin">Ірпінь</option>
+                    <option value="Bucha">Буча</option>
+                </select>
+                <input type="text" id="clientAddress" placeholder="Адреса доставки (Вулиця, будинок, квартира)" required>
+            </section>
+            
+            <section class="section-services">
+                <h2>4. Додаткові Послуги</h2>
+                <div class="service-option">
+                    <input type="checkbox" id="serviceLocation" onchange="calculatePrice()">
+                    <label for="serviceLocation">Послуга "+Локація" (Супровід адміністратора, 900 ₴)</label>
+                </div>
+                <div class="service-option">
+                    <input type="checkbox" id="servicePriority" onchange="calculatePrice()">
+                    <label for="servicePriority">Пріоритетна Доставка (День в День, +300 ₴)</label>
+                </div>
+            </section>
+
+            <section class="section-summary">
+                <h2>5. Підсумок Замовлення</h2>
+                <div class="summary-details">
+                    <p>Базова вартість оренди: <span id="basePrice" class="summary-value">0 ₴</span></p>
+                    <p>Знижка за тривалість: <span id="discountValue" class="summary-value">0 ₴</span></p>
+                    <p>Вартість послуг: <span id="servicesPrice" class="summary-value">0 ₴</span></p>
+                </div>
+                
+                <div class="summary-total">
+                    <p class="final-price">
+                        **ВСЬОГО ДО СПЛАТИ:** <span id="finalPrice" class="total-value">0 ₴</span>
+                    </p>
+                    <p class="deposit-amount">
+                        **ОРІЄНТОВНА ЗАСТАВА:** <span id="depositAmount" class="total-value">0 ₴</span>
+                    </p>
+                </div>
+
+                <p id="message" class="info-message"></p>
+                <button type="submit" id="submitButton">Оформити Замовлення</button>
+            </section>
+        </form>
+    </main>
+</body>
+</html>
