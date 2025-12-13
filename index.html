@@ -1,584 +1,329 @@
-<!DOCTYPE html>
-<html lang="uk">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAIR | Конфігуратор Замовлення Івенту</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        /* LAIR Core Palette */
-        :root {
-            --color-bunker-graphite: #2d2d2d;
-            --color-sunset-red: #E05A47;
-            --color-warm-white: #F5F5F5;
-            --color-card-dark: #3f3f3f;
-        }
-
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--color-bunker-graphite);
-            color: var(--color-warm-white);
-        }
-        .card {
-            background-color: var(--color-card-dark);
-            border-radius: 1rem;
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
-        }
-        .accent-color {
-            color: var(--color-sunset-red);
-        }
-        
-        /* Custom Input Styles */
-        .lair-input {
-            background-color: #4a4a4a;
-            border: 1px solid #666666;
-            color: var(--color-warm-white);
-            transition: border-color 0.2s;
-        }
-        .lair-input:focus {
-            border-color: var(--color-sunset-red);
-            box-shadow: 0 0 0 1px var(--color-sunset-red);
-            outline: none;
-        }
-
-        /* Accent Slider Styling (Red) */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 8px;
-            background: #5a5a5a;
-            border-radius: 4px;
-            margin: 8px 0;
-            transition: background 0.3s;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: var(--color-sunset-red);
-            cursor: pointer;
-            border-radius: 50%;
-            border: 3px solid var(--color-warm-white);
-            box-shadow: 0 0 5px var(--color-sunset-red);
-        }
-
-        /* Button Styles */
-        .lair-btn-primary {
-            background-color: var(--color-sunset-red);
-            color: white;
-            transition: background-color 0.2s, transform 0.1s;
-        }
-        .lair-btn-primary:hover {
-            background-color: #c74d3a;
-        }
-        .lair-btn-primary:active {
-            transform: scale(0.98);
-        }
-        
-        /* Tab navigation */
-        .tab-btn {
-            background-color: #4a4a4a;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s;
-        }
-        .tab-btn.active {
-            background-color: var(--color-card-dark);
-            border-bottom: 3px solid var(--color-sunset-red);
-            color: var(--color-sunset-red);
-            font-weight: bold;
-        }
-        
-        /* Checkbox custom style */
-        input[type="checkbox"] {
-            accent-color: var(--color-sunset-red);
-            width: 1.25rem;
-            height: 1.25rem;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LAIR Mobile Event</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Arial;max-width:980px;margin:24px auto;padding:0 12px}
+    h2{margin:0 0 8px}
+    .muted{color:#666;font-size:14px;line-height:1.4}
+    .card{border:1px solid #ddd;border-radius:14px;padding:14px;margin:12px 0}
+    label{display:block;margin:10px 0 6px;font-weight:600}
+    input,select,textarea{
+      width:100%;padding:10px 12px;border:1px solid #ccc;border-radius:12px;
+      outline:none
+    }
+    input:focus,select:focus,textarea:focus{border-color:#111}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    .gridItems{display:grid;grid-template-columns:1fr 140px;gap:10px;align-items:center;margin:8px 0}
+    .btn{cursor:pointer;border:0;border-radius:12px;padding:12px 14px;font-weight:700}
+    .btnPrimary{background:#111;color:#fff}
+    .btnGhost{background:#f3f3f3}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#f3f3f3;font-size:12px;margin:6px 6px 0 0}
+    .err{color:#b00020;font-weight:700}
+    .ok{color:#0a7a2f;font-weight:700}
+    .total{font-size:20px;font-weight:800;margin-top:8px}
+    .kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .kpi .box{border:1px dashed #ccc;border-radius:14px;padding:10px}
+    .hint{font-size:12px;color:#666;margin-top:6px}
+    .divider{height:1px;background:#eee;margin:12px 0}
+    .disabled{opacity:.55;pointer-events:none}
+  </style>
 </head>
-<body class="min-h-screen p-4 md:p-10">
+<body>
+  <h2>LAIR Mobile Event — калькулятор</h2>
+  <div class="muted">
+    Рахує вартість, передплату <b>30%</b>, заставу та записує заявку в Google Sheet.
+    Мінімум <b>4 години</b> для погодинної оренди. Склад зараз: <b>по 2 одиниці</b> кожного девайса.
+  </div>
 
-    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <div class="col-span-1 lg:col-span-3 text-center mb-6">
-            <h1 class="text-4xl font-extrabold mb-2 accent-color">LAIR Event Builder <i class="fas fa-desktop ml-1"></i></h1>
-            <p class="text-neutral-400">Швидкий конфігуратор та бронювання оренди</p>
-        </div>
-
-        <div class="col-span-1 lg:col-span-2 space-y-8">
-            
-            <div class="flex card p-2 justify-around shadow-inner">
-                <button onclick="showTab(1)" id="tab-1-btn" class="tab-btn active flex-1 p-3 rounded-lg text-center">1. Обладнання</button>
-                <button onclick="showTab(2)" id="tab-2-btn" class="tab-btn flex-1 p-3 rounded-lg text-center">2. Логістика/Сервіс</button>
-                <button onclick="showTab(3)" id="tab-3-btn" class="tab-btn flex-1 p-3 rounded-lg text-center">3. Контакти</button>
-            </div>
-
-            <div id="tab-1" class="tab-content card p-8 shadow-2xl">
-                <h2 class="text-2xl font-bold mb-6 accent-color"><i class="fas fa-gamepad mr-2"></i> Вибір Ігрового Обладнання</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="input-group">
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="text-lg">Ігрові Ноутбуки (шт)</label>
-                            <span id="laptopCountVal" class="text-3xl font-extrabold accent-color">4</span>
-                        </div>
-                        <input type="range" id="laptops" min="0" max="40" step="1" value="4" class="w-full">
-                        <p class="text-xs text-neutral-400">Оптимально для турнірів та великих зон.</p>
-                    </div>
-
-                    <div class="input-group">
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="text-lg">PlayStation 5 (шт)</label>
-                            <span id="ps5CountVal" class="text-3xl font-extrabold accent-color">2</span>
-                        </div>
-                        <input type="range" id="ps5" min="0" max="10" step="1" value="2" class="w-full">
-                        <p class="text-xs text-neutral-400">Для фанової зони та ігор на дивані.</p>
-                    </div>
-
-                    <div class="input-group">
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="text-lg">VR Шоломи (Quest 3/2)</label>
-                            <span id="vrCountVal" class="text-3xl font-extrabold accent-color">1</span>
-                        </div>
-                        <input type="range" id="vr" min="0" max="10" step="1" value="1" class="w-full">
-                        <p class="text-xs text-neutral-400">Обов'язкова умова: 4х4м простору для гри.</p>
-                    </div>
-
-                    <div class="input-group">
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="text-lg">ТВ 50-55" + Стійки (шт)</label>
-                            <span id="tvCountVal" class="text-3xl font-extrabold text-green-400">2</span>
-                        </div>
-                        <input type="range" id="tv" min="0" max="10" step="1" value="2" class="w-full">
-                        <p class="text-xs text-neutral-400">**Автоматично рекомендується кількість ТВ = PS5.**</p>
-                    </div>
-                </div>
-                
-                <div class="flex justify-end mt-8">
-                    <button onclick="showTab(2)" class="lair-btn-primary py-3 px-6 rounded-lg text-lg"><i class="fas fa-arrow-right mr-2"></i> Далі: Сервіс</button>
-                </div>
-            </div>
-
-            <div id="tab-2" class="tab-content card p-8 shadow-2xl hidden">
-                <h2 class="text-2xl font-bold mb-6 accent-color"><i class="fas fa-truck-loading mr-2"></i> Налаштування Сервісу</h2>
-                
-                <div class="space-y-8">
-                    <div class="bg-neutral-600/30 p-4 rounded-lg">
-                        <label class="flex items-center space-x-3 cursor-pointer">
-                            <input type="checkbox" id="operator" class="w-6 h-6 rounded border-gray-600 bg-gray-700" checked>
-                            <span class="text-xl font-semibold">Технічний адміністратор (Обов'язково для івентів > 6 одиниць)</span>
-                        </label>
-                        <div class="pl-9 mt-4 text-neutral-300">
-                            <p class="mb-3">Адміністратор забезпечує налаштування, контроль обладнання та підтримку гостей.</p>
-                            <div class="flex items-center gap-4 flex-wrap">
-                                <label class="text-lg">Години роботи (мін. 4 год):</label>
-                                <div class="flex-grow max-w-md flex items-center gap-4">
-                                    <input type="range" id="hours" min="4" max="12" step="1" value="6" class="w-full">
-                                    <span id="hoursVal" class="text-3xl font-extrabold accent-color">6</span>
-                                    <span>годин</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-neutral-600/30 p-4 rounded-lg">
-                        <label class="flex items-center space-x-3 cursor-pointer mb-4">
-                            <input type="checkbox" id="delivery" class="w-6 h-6 rounded border-gray-600 bg-gray-700" checked>
-                            <span class="text-xl font-semibold">Монтаж/Демонтаж та Доставка</span>
-                        </label>
-                        
-                        <div class="pl-9 space-y-4">
-                            <label class="block text-neutral-300">Виберіть Зону Доставки:</label>
-                            <select id="deliveryZone" class="w-full lair-input p-3 rounded-lg text-lg">
-                                <option value="1000">Місто (Стандарт): 1000 грн</option>
-                                <option value="1500">Центр/Складний заїзд: 1500 грн</option>
-                                <option value="2500">За місто (до 30км): 2500 грн</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-between mt-8">
-                    <button onclick="showTab(1)" class="lair-btn-primary py-3 px-6 rounded-lg text-lg bg-neutral-600 hover:bg-neutral-700"><i class="fas fa-arrow-left mr-2"></i> Назад</button>
-                    <button onclick="showTab(3)" class="lair-btn-primary py-3 px-6 rounded-lg text-lg"><i class="fas fa-check-circle mr-2"></i> Далі: Фіналізація</button>
-                </div>
-            </div>
-
-            <div id="tab-3" class="tab-content card p-8 shadow-2xl hidden">
-                <h2 class="text-2xl font-bold mb-6 accent-color"><i class="fas fa-id-card-alt mr-2"></i> Оформлення та Контакти</h2>
-                
-                <form id="orderForm" class="space-y-4">
-                    <input type="text" id="clientName" placeholder="Ім'я та Прізвище (Обов'язково)" required class="lair-input w-full p-4 rounded-lg text-base">
-                    <input type="tel" id="clientPhone" placeholder="Телефон (Обов'язково)" required class="lair-input w-full p-4 rounded-lg text-base">
-                    <input type="email" id="clientEmail" placeholder="Email (Бажано для підтвердження)" class="lair-input w-full p-4 rounded-lg text-base">
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="date" id="eventDate" placeholder="Дата івенту" required class="lair-input w-full p-4 rounded-lg text-base appearance-none">
-                        <input type="text" id="eventLocation" placeholder="Адреса проведення (Місто/Вулиця)" class="lair-input w-full p-4 rounded-lg text-base">
-                    </div>
-                    
-                    <textarea id="eventNotes" placeholder="Додаткові побажання та деталі" rows="3" class="lair-input w-full p-4 rounded-lg text-base"></textarea>
-
-                    <div class="pt-6 border-t border-neutral-600">
-                        <span class="font-bold text-xl block mb-2">Знижка Клієнту (%)</span>
-                        <div class="flex items-center gap-4">
-                            <input type="range" id="discount" min="0" max="30" value="10" step="5" class="w-full">
-                            <span id="discountVal" class="font-extrabold text-3xl w-12 text-right accent-color">10</span>
-                            <span>%</span>
-                        </div>
-                    </div>
-                </form>
-                
-                <div id="validationError" class="mt-4 hidden font-bold text-red-400 p-3 border border-red-500 rounded bg-red-900/20 text-center">
-                    <i class="fas fa-exclamation-triangle mr-2"></i> Помилка: Заповніть обов'язкові поля (Ім'я, Телефон, Дата).
-                </div>
-
-                <div class="flex justify-between mt-8">
-                    <button onclick="showTab(2)" class="lair-btn-primary py-3 px-6 rounded-lg text-lg bg-neutral-600 hover:bg-neutral-700"><i class="fas fa-arrow-left mr-2"></i> Назад</button>
-                    <button onclick="submitOrder()" class="lair-btn-primary py-4 px-8 rounded-lg text-xl font-bold"><i class="fas fa-paper-plane mr-2"></i> ПІДТВЕРДИТИ ЗАМОВЛЕННЯ</button>
-                </div>
-            </div>
-            
-            <div class="text-center pt-4">
-                <button id="toggleSettings" class="text-sm text-neutral-500 hover:text-neutral-300 underline"><i class="fas fa-cog mr-1"></i> Налаштувати базові ціни</button>
-            </div>
-            <div id="settingsPanel" class="hidden card p-4 rounded-xl text-sm mt-4">
-                <h3 class="font-bold mb-3 accent-color">Базові ціни оренди за 1 одиницю (грн/доба)</h3>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <label class="block">Ноутбук: <input type="number" id="basePriceLaptop" value="1500" min="0" class="w-full lair-input px-2 py-1"></label>
-                    <label class="block">PS5: <input type="number" id="basePricePS5" value="1200" min="0" class="w-full lair-input px-2 py-1"></label>
-                    <label class="block">VR: <input type="number" id="basePriceVR" value="1800" min="0" class="w-full lair-input px-2 py-1"></label>
-                    <label class="block">ТВ: <input type="number" id="basePriceTV" value="1000" min="0" class="w-full lair-input px-2 py-1"></label>
-                    <label class="block">Адмін/год: <input type="number" id="basePriceAdmin" value="300" min="0" class="w-full lair-input px-2 py-1"></label>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="col-span-1">
-            <div class="card p-8 shadow-2xl sticky top-6 border-t-4 border-t-red-700">
-                <h2 class="text-3xl font-extrabold mb-6 text-center accent-color">🧾 Кошторис <span class="text-sm text-neutral-400">(Live)</span></h2>
-                
-                <div class="space-y-4 text-base border-b border-neutral-600 pb-5 mb-5">
-                    <div class="flex justify-between items-center">
-                        <span class="text-neutral-300">Обладнання:</span>
-                        <span id="equipTotal" class="font-bold">0 ₴</span>
-                    </div>
-                    <div id="staffRow" class="flex justify-between items-center">
-                        <span class="text-neutral-300">Персонал (<span id="summaryHours">6</span> год):</span>
-                        <span id="staffTotal" class="font-bold">0 ₴</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-neutral-300">Логістика/Монтаж:</span>
-                        <span id="deliveryTotal" class="font-bold">0 ₴</span>
-                    </div>
-                    <div class="flex justify-between items-center pt-2 border-t border-neutral-700">
-                        <span class="text-xl font-bold">Загальна Сума:</span>
-                        <span id="subtotal" class="text-xl font-bold">0 ₴</span>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center mb-6 text-orange-400">
-                    <span class="text-lg">Знижка (<span id="discountSummary">10</span>%):</span>
-                    <span id="discountAmount" class="text-lg font-bold">-0 ₴</span>
-                </div>
-
-                <div class="bg-black rounded-lg p-5 text-center border border-red-700">
-                    <p class="text-neutral-400 text-base mb-1">ДО СПЛАТИ</p>
-                    <p id="finalTotal" class="text-5xl font-extrabold text-green-400">0 ₴</p>
-                </div>
-                
-                <button onclick="copyToClipboard()" class="w-full mt-6 bg-neutral-600 hover:bg-neutral-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 text-sm">
-                    <i class="fas fa-copy mr-2"></i> Копіювати Кошторис
-                </button>
-
-                <div class="mt-6 text-xs text-neutral-500 text-center">
-                    * З Вами зв'яжеться менеджер для підтвердження.
-                </div>
-            </div>
-        </div>
-
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>Ім'я</label>
+        <input id="name" placeholder="Микита" />
+      </div>
+      <div>
+        <label>Телефон</label>
+        <input id="phone" placeholder="+380XXXXXXXXX або 0XXXXXXXXX" />
+        <div class="hint">Формат: +380XXXXXXXXX або 0XXXXXXXXX</div>
+      </div>
     </div>
 
-    <script>
-        // --- Configuration ---
-        // ЗАМІНІТЬ ЦЕЙ URL НА ВАШ GOOGLE APPS SCRIPT WEB APP URL
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpxXWq8zhMM0ifO_cgZavHgrUq96RhlNy4aLA5qL0enEFpX4Luk7Xgf88S8s-cpHvlWg/exec'; 
+    <div class="row">
+      <div>
+        <label>Місто/зона</label>
+        <select id="cityZone">
+          <option value="irpin">Ірпінь</option>
+          <option value="bucha">Буча</option>
+          <option value="kyiv">Київ</option>
+        </select>
+      </div>
+      <div>
+        <label>Адреса (коротко)</label>
+        <input id="address" placeholder="вул..., ЖК..., під'їзд..." />
+      </div>
+    </div>
 
-        // --- State and Logic ---
-        const state = {
-            laptops: 4, ps5: 2, vr: 1, tv: 2,
-            operator: true, hours: 6,
-            delivery: true, deliveryCost: 1000,
-            discount: 10,
-            prices: {
-                laptop: 1500, ps5: 1200, vr: 1800, tv: 1000, adminPerHour: 300
-            }
-        };
+    <div class="row3">
+      <div>
+        <label>Дата/час старту</label>
+        <input id="dateStart" placeholder="YYYY-MM-DD HH:MM (напр. 2026-02-10 18:00)" />
+        <div class="hint">Нічний тариф: 22:00–08:00</div>
+      </div>
+      <div>
+        <label>Терміновість</label>
+        <select id="sameDay">
+          <option value="false">Заплановано &gt; 24 год</option>
+          <option value="true">День-в-день (2–4 год)</option>
+        </select>
+      </div>
+      <div>
+        <label>Тип оренди</label>
+        <select id="rentType">
+          <option value="hour">Погодинна</option>
+          <option value="day">Подобова</option>
+        </select>
+      </div>
+    </div>
 
-        const inputs = {
-            laptops: document.getElementById('laptops'), ps5: document.getElementById('ps5'), vr: document.getElementById('vr'), tv: document.getElementById('tv'),
-            operator: document.getElementById('operator'), hours: document.getElementById('hours'),
-            delivery: document.getElementById('delivery'), deliveryZone: document.getElementById('deliveryZone'), discount: document.getElementById('discount'),
-            clientName: document.getElementById('clientName'), clientPhone: document.getElementById('clientPhone'), clientEmail: document.getElementById('clientEmail'),
-            eventLocation: document.getElementById('eventLocation'), eventDate: document.getElementById('eventDate'), eventNotes: document.getElementById('eventNotes'),
-            basePriceLaptop: document.getElementById('basePriceLaptop'), basePricePS5: document.getElementById('basePricePS5'), basePriceVR: document.getElementById('basePriceVR'),
-            basePriceTV: document.getElementById('basePriceTV'), basePriceAdmin: document.getElementById('basePriceAdmin'),
-        };
-        
-        const displays = {
-            laptopCount: document.getElementById('laptopCountVal'), ps5Count: document.getElementById('ps5CountVal'), vrCount: document.getElementById('vrCountVal'), tvCount: document.getElementById('tvCountVal'),
-            hoursVal: document.getElementById('hoursVal'), discountVal: document.getElementById('discountVal'),
-            equipTotal: document.getElementById('equipTotal'), staffTotal: document.getElementById('staffTotal'), deliveryTotal: document.getElementById('deliveryTotal'),
-            subtotal: document.getElementById('subtotal'), discountAmount: document.getElementById('discountAmount'), finalTotal: document.getElementById('finalTotal'),
-            summaryHours: document.getElementById('summaryHours'), discountSummary: document.getElementById('discountSummary'), staffRow: document.getElementById('staffRow'),
-            validationError: document.getElementById('validationError')
-        };
+    <div class="row3">
+      <div>
+        <label>Тривалість (годин або діб)</label>
+        <input id="duration" type="number" min="1" value="4" />
+      </div>
+      <div>
+        <label>Нагляд (впливає на заставу)</label>
+        <select id="supervision">
+          <option value="admin">Адміністратор весь час</option>
+          <option value="cam">IP-камера весь час</option>
+          <option value="none">Без нагляду</option>
+        </select>
+      </div>
+      <div>
+        <label>Адміністратори</label>
+        <select id="adminCount">
+          <option value="1">1 адмін (включено)</option>
+          <option value="2">2 адміни (доплата)</option>
+        </select>
+        <div class="hint">Доступно одночасно: 2</div>
+      </div>
+    </div>
 
-        const tabs = {
-            'tab-1': document.getElementById('tab-1'),
-            'tab-2': document.getElementById('tab-2'),
-            'tab-3': document.getElementById('tab-3'),
-        };
+    <div class="row">
+      <div>
+        <label>Реферальний код (опціонально)</label>
+        <input id="referralCode" placeholder="C2E123" />
+      </div>
+      <div>
+        <label>Рівень лояльності</label>
+        <select id="loyaltyLevel">
+          <option value="bronze">Bronze</option>
+          <option value="silver">Silver (–5% на погодинну)</option>
+          <option value="gold">Gold (–8% на погодинну)</option>
+          <option value="platinum">Platinum (–12% на погодинну)</option>
+        </select>
+      </div>
+    </div>
 
-        // --- Core Functions ---
+    <div style="margin-top:8px">
+      <label style="font-weight:700">
+        <input id="locationEnabled" type="checkbox" />
+        + Локація (середня доба по зоні + 25%)
+      </label>
+      <div class="hint">Ірпінь/Буча: 1500 → 1875 ₴/доба (≈117 ₴/год) • Київ: 2000 → 2500 ₴/доба (≈156 ₴/год)</div>
+    </div>
 
-        function showTab(tabNumber) {
-            const tabId = `tab-${tabNumber}`;
-            Object.values(tabs).forEach(tab => tab.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
+    <div class="divider"></div>
 
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`${tabId}-btn`).classList.add('active');
-        }
+    <div class="row">
+      <div>
+        <label>Пакет (вигідніше)</label>
+        <select id="packageKey" onchange="onPackageChange()">
+          <option value="">Без пакету</option>
+          <option value="lan5">LAN 5</option>
+          <option value="lan10">LAN 10</option>
+          <option value="ps5duo">PS5 Duo</option>
+          <option value="ps5x4">PS5 x4</option>
+          <option value="vr2">VR x2</option>
+        </select>
+        <div class="hint">Увага: при складі “по 2” пакети LAN 5/10 не пройдуть перевірку.</div>
+      </div>
+      <div>
+        <label>Коментар</label>
+        <input id="notes" placeholder="Ігри, побажання, поверх, ліфт, паркінг..." />
+      </div>
+    </div>
 
-        function calculate() {
-            // 1. Update State & Prices from Inputs
-            state.laptops = parseInt(inputs.laptops.value) || 0;
-            state.ps5 = parseInt(inputs.ps5.value) || 0;
-            state.vr = parseInt(inputs.vr.value) || 0;
-            
-            // LOGIC FIX: TV count should be at least equal to PS5 count
-            state.tv = Math.max(parseInt(inputs.tv.value) || 0, state.ps5);
-            inputs.tv.value = state.tv; // Update slider position if it was less than PS5
+    <div style="margin-top:8px">
+      <span class="pill">Доставка: Ірпінь/Буча ×1.00 • Київ ×1.15</span>
+      <span class="pill">Терміновість день-в-день ×1.20</span>
+      <span class="pill">Нічний тариф ×1.15</span>
+      <span class="pill">Передплата 30%</span>
+    </div>
+  </div>
 
-            state.operator = inputs.operator.checked;
-            
-            // LOGIC FIX: Minimum 4 hours if operator is selected
-            state.hours = state.operator ? Math.max(parseInt(inputs.hours.value) || 4, 4) : 0;
-            inputs.hours.min = state.operator ? 4 : 0; 
-            if (state.operator && parseInt(inputs.hours.value) < 4) {
-                 inputs.hours.value = 4;
-                 state.hours = 4;
-            }
+  <div class="card" id="itemsCard">
+    <h3 style="margin:0 0 6px">Позиції (якщо без пакету)</h3>
+    <div class="muted">Ліміт складу: максимум <b>2</b> кожного. Якщо обрано пакет — ці поля ігноруються.</div>
 
-            state.delivery = inputs.delivery.checked;
-            state.deliveryCost = state.delivery ? parseInt(inputs.deliveryZone.value) : 0;
-            state.discount = parseInt(inputs.discount.value);
+    <div class="gridItems"><div>Ноутбук RTX 5070</div><input id="laptop5070" type="number" min="0" value="0" oninput="enforceLimit(this)"></div>
+    <div class="gridItems"><div>PS5</div><input id="ps5" type="number" min="0" value="0" oninput="enforceLimit(this)"></div>
+    <div class="gridItems"><div>TV 50"</div><input id="tv50" type="number" min="0" value="0" oninput="enforceLimit(this)"></div>
+    <div class="gridItems"><div>Монітор</div><input id="monitor" type="number" min="0" value="0" oninput="enforceLimit(this)"></div>
+    <div class="gridItems"><div>Стіл ігровий</div><input id="table" type="number" min="0" value="0" oninput="enforceLimit(this)"></div>
+    <div class="gridItems"><div>Крісло ігрове</div><input id="chair" type="number" min="0" value="0" oninput="enforceLimit(this)"></div>
+    <div class="gridItems"><div>ДБЖ</div><input id="ups" type="number" min="0" value="0" oninput="enforceLimit(this)"></div>
+    <div class="gridItems"><div>VR</div><input id="vr" type="number" min="0" value="0" oninput="enforceLimit(this)"></div>
 
-            // Update Manager Prices
-            state.prices.laptop = parseInt(inputs.basePriceLaptop.value) || 0;
-            state.prices.ps5 = parseInt(inputs.basePricePS5.value) || 0;
-            state.prices.vr = parseInt(inputs.basePriceVR.value) || 0;
-            state.prices.tv = parseInt(inputs.basePriceTV.value) || 0;
-            state.prices.adminPerHour = parseInt(inputs.basePriceAdmin.value) || 0;
+    <label style="margin-top:12px">
+      <input id="adminExtra" type="checkbox">
+      Додати адмін-супровід для “дрібного” замовлення (опція)
+    </label>
+  </div>
 
-            // 2. Update UI Counters
-            displays.laptopCount.innerText = state.laptops;
-            displays.ps5Count.innerText = state.ps5;
-            displays.vrCount.innerText = state.vr;
-            displays.tvCount.innerText = state.tv;
-            displays.hoursVal.innerText = state.hours;
-            displays.discountVal.innerText = state.discount;
-            displays.discountSummary.innerText = state.discount;
-            displays.summaryHours.innerText = state.hours;
+  <div class="card">
+    <button class="btn btnGhost" onclick="validateOnly()">Перевірити дані</button>
+    <button class="btn btnPrimary" onclick="submit()">Оформити замовлення</button>
+    <div id="msg" class="muted" style="margin-top:12px"></div>
+  </div>
 
-            // 3. Calculations
-            const equipCost = 
-                (state.laptops * state.prices.laptop) + 
-                (state.ps5 * state.prices.ps5) + 
-                (state.vr * state.prices.vr) +
-                (state.tv * state.prices.tv);
+<script>
+  const STOCK_LIMIT = 2;
 
-            const staffCost = state.operator ? (state.prices.adminPerHour * state.hours) : 0;
-            const deliveryCost = state.delivery ? state.deliveryCost : 0;
+  function $(id){ return document.getElementById(id); }
+  function val(id){ return $(id).value; }
+  function num(id){ return Number($(id).value || 0); }
 
-            const subtotal = equipCost + staffCost + deliveryCost;
-            const discountAmount = Math.round(subtotal * (state.discount / 100));
-            const finalTotal = subtotal - discountAmount;
+  function setMsg(html, cls="muted"){
+    const el = $("msg");
+    el.className = cls;
+    el.innerHTML = html;
+  }
 
-            // 4. Render Results
-            displays.equipTotal.innerText = equipCost.toLocaleString() + ' ₴';
-            displays.staffTotal.innerText = staffCost.toLocaleString() + ' ₴';
-            displays.deliveryTotal.innerText = deliveryCost.toLocaleString() + ' ₴';
-            displays.subtotal.innerText = subtotal.toLocaleString() + ' ₴';
-            displays.discountAmount.innerText = '-' + discountAmount.toLocaleString() + ' ₴';
-            displays.finalTotal.innerText = finalTotal.toLocaleString() + ' ₴';
-            
-            // Toggle staff row visibility
-            displays.staffRow.style.display = state.operator ? 'flex' : 'none';
-        }
-        
-        // --- Form Validation and Submission ---
+  function enforceLimit(input){
+    const n = Number(input.value || 0);
+    if (n > STOCK_LIMIT) input.value = STOCK_LIMIT;
+    if (n < 0) input.value = 0;
+  }
 
-        function validateForm() {
-            let isValid = true;
-            
-            // Check required fields and add error class
-            const requiredFields = [inputs.clientName, inputs.clientPhone, inputs.eventDate];
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    field.classList.add('border-red-500');
-                    isValid = false;
-                } else {
-                    field.classList.remove('border-red-500');
-                }
-            });
+  function onPackageChange(){
+    const hasPackage = !!val("packageKey");
+    const card = $("itemsCard");
+    if (hasPackage) card.classList.add("disabled");
+    else card.classList.remove("disabled");
+  }
 
-            if (!isValid) {
-                displays.validationError.classList.remove('hidden');
-                // Force user back to tab 3 if validation fails
-                showTab(3);
-            } else {
-                displays.validationError.classList.add('hidden');
-            }
+  function isValidPhoneUA(phone){
+    const p = String(phone || "").replace(/\s+/g,"");
+    return /^(\+380\d{9}|0\d{9})$/.test(p);
+  }
 
-            return isValid;
-        }
+  function clientValidate(p){
+    const name = (p.name||"").trim();
+    if(name.length < 2) return "Вкажи ім'я (мін 2 символи).";
 
-        async function submitOrder() {
-            if (!validateForm()) {
-                return;
-            }
+    if(!isValidPhoneUA(p.phone)) return "Невірний телефон. Формат: +380XXXXXXXXX або 0XXXXXXXXX.";
 
-            // Recalculate just to be sure
-            calculate(); 
-            const finalTotal = parseFloat(displays.finalTotal.innerText.replace(/[ ₴]/g, ''));
-            
-            const orderData = {
-                'ClientName': inputs.clientName.value.trim(),
-                'ClientPhone': inputs.clientPhone.value.trim(),
-                'ClientEmail': inputs.clientEmail.value.trim(),
-                'EventLocation': inputs.eventLocation.value.trim(),
-                'EventDate': inputs.eventDate.value,
-                'EventNotes': inputs.eventNotes.value.trim(),
-                
-                'EquipDetails': {
-                    'Laptops': state.laptops, 'PS5': state.ps5, 'VR': state.vr, 'TVs': state.tv,
-                    'EquipTotal': parseFloat(displays.equipTotal.innerText.replace(/[ ₴]/g, ''))
-                },
-                'ServiceDetails': {
-                    'Operator': state.operator ? 'Так' : 'Ні',
-                    'Hours': state.hours,
-                    'StaffTotal': parseFloat(displays.staffTotal.innerText.replace(/[ ₴]/g, '')),
-                    'DeliveryZone': inputs.deliveryZone.options[inputs.deliveryZone.selectedIndex].text,
-                    'DeliveryTotal': parseFloat(displays.deliveryTotal.innerText.replace(/[ ₴]/g, ''))
-                },
+    const dur = Number(p.duration);
+    if(!Number.isFinite(dur) || dur <= 0) return "Невірна тривалість.";
 
-                'Subtotal': parseFloat(displays.subtotal.innerText.replace(/[ ₴]/g, '')),
-                'DiscountPercent': state.discount,
-                'DiscountAmount': parseFloat(displays.discountAmount.innerText.replace(/[^0-9]/g, '')),
-                'FinalTotal': finalTotal,
-                'Timestamp': new Date().toISOString()
-            };
+    if(p.rentType === "hour" && dur < 4) return "Мінімум 4 години для погодинної оренди.";
 
-            // Visual feedback - loading state
-            const submitBtn = document.querySelector('button[onclick="submitOrder()"]');
-            const originalBtnText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Обробка...';
-            submitBtn.disabled = true;
+    const adminCount = Number(p.adminCount);
+    if(![1,2].includes(adminCount)) return "Адміністратори: обери 1 або 2.";
 
-            try {
-                 const response = await fetch(APPS_SCRIPT_URL, {
-                     method: 'POST',
-                     mode: 'no-cors', 
-                     headers: {
-                         'Content-Type': 'application/json',
-                     },
-                     body: JSON.stringify(orderData)
-                 });
+    // складські ліміти
+    const keys = ["laptop5070","ps5","tv50","monitor","table","chair","ups","vr"];
+    for(const k of keys){
+      if (p.items[k] > STOCK_LIMIT) return `Перевищено ліміт складу для ${k}: максимум ${STOCK_LIMIT}.`;
+      if (p.items[k] < 0) return `Кількість не може бути від'ємною (${k}).`;
+    }
 
-                 alert(`✅ Замовлення на суму ${finalTotal.toLocaleString()} ₴ прийнято! Менеджер LAIR зв'яжеться з Вами.`);
-                 
-                 document.getElementById('orderForm').reset();
-                 // Reset defaults
-                 inputs.laptops.value = 4;
-                 inputs.ps5.value = 2;
-                 calculate();
-                 showTab(1); 
+    // має бути хоча б 1 позиція або пакет
+    const hasPackage = !!p.packageKey;
+    const totalQty = Object.values(p.items).reduce((a,b)=>a+Number(b||0),0);
+    if(!hasPackage && totalQty <= 0) return "Додай хоча б 1 позицію або обери пакет.";
 
-            } catch (error) {
-                console.error('Error submitting order:', error);
-                alert('⚠️ Виникла помилка. Будь ласка, скопіюйте кошторис і зв\'яжіться з нами.');
-            } finally {
-                submitBtn.innerHTML = originalBtnText;
-                submitBtn.disabled = false;
-            }
-        }
+    return null;
+  }
 
-        function copyToClipboard() {
-            const finalTotalText = displays.finalTotal.innerText;
-            const subtotal = parseFloat(displays.subtotal.innerText.replace(/[ ₴]/g, ''));
-            const discountAmount = parseFloat(displays.discountAmount.innerText.replace(/[^0-9]/g, ''));
+  function buildPayload(){
+    return {
+      name: val("name"),
+      phone: val("phone"),
+      cityZone: val("cityZone"),
+      address: val("address"),
+      dateStart: val("dateStart"),
+      rentType: val("rentType"),
+      duration: val("duration"),
+      sameDay: (val("sameDay") === "true"),
+      supervision: val("supervision"),
+      adminCount: Number(val("adminCount")),
+      referralCode: val("referralCode"),
+      loyaltyLevel: val("loyaltyLevel"),
+      locationEnabled: $("locationEnabled").checked,
+      packageKey: val("packageKey"),
+      adminExtra: $("adminExtra").checked,
+      notes: val("notes"),
+      items: {
+        laptop5070: num("laptop5070"),
+        ps5: num("ps5"),
+        tv50: num("tv50"),
+        monitor: num("monitor"),
+        table: num("table"),
+        chair: num("chair"),
+        ups: num("ups"),
+        vr: num("vr")
+      }
+    };
+  }
 
-            const text = `🎉 Кошторис оренди обладнання LAIR 🎉\n\n` +
-                `👤 Клієнт: ${inputs.clientName.value.trim() || 'Клієнт LAIR'}\n` +
-                `📅 Дата Івенту: ${inputs.eventDate.value || 'Не вказано'}\n` +
-                `\n` +
-                `--- Деталізація ---\n` +
-                `- Ноутбуки (${state.laptops} шт): ${(state.laptops * state.prices.laptop).toLocaleString()} грн\n` +
-                `- PS5 (${state.ps5} шт): ${(state.ps5 * state.prices.ps5).toLocaleString()} грн\n` +
-                `- VR (${state.vr} шт): ${(state.vr * state.prices.vr).toLocaleString()} грн\n` +
-                `- ТВ/Стійки (${state.tv} шт): ${(state.tv * state.prices.tv).toLocaleString()} грн\n` +
-                `- Тех. адмін (${state.hours} год): ${(state.operator ? (state.prices.adminPerHour * state.hours) : 0).toLocaleString()} грн\n` +
-                `- Логістика: ${(state.delivery ? state.deliveryCost : 0).toLocaleString()} грн\n` +
-                `\n` +
-                `➡️ Сума до знижки: ${subtotal.toLocaleString()} грн\n` +
-                `🎁 Знижка ${state.discount}%: -${discountAmount.toLocaleString()} грн\n` +
-                `================\n` +
-                `🔥 РАЗОМ ДО СПЛАТИ: ${finalTotalText}\n\n` +
-                `Для оформлення замовлення перейдіть за посиланням або дайте відповідь на це повідомлення.`;
-            
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Кошторис скопійовано в буфер обміну!");
-            }).catch(err => {
-                alert("Не вдалося скопіювати автоматично. Будь ласка, виділіть текст і скопіюйте вручну.");
-            });
-        }
+  function validateOnly(){
+    const p = buildPayload();
+    const err = clientValidate(p);
+    if(err) return setMsg(err, "err");
 
-        // --- Event Listeners and Init ---
+    const hasPackage = !!p.packageKey;
+    setMsg(
+      `<div class="ok">Дані валідні ✅</div>
+       <div class="muted">Можеш натискати «Оформити замовлення».</div>
+       <div class="hint">${hasPackage ? "Обрано пакет — ручні позиції ігноруються." : "Розрахунок буде по вибраних позиціях."}</div>`,
+      "ok"
+    );
+  }
 
-        // Listen for changes on all relevant inputs
-        Object.values(inputs).forEach(input => {
-             // Attach event listeners
-             if (input.type === 'range' || input.type === 'checkbox' || input.tagName === 'SELECT') {
-                 input.addEventListener('input', calculate);
-             }
-             if (input.type === 'number') {
-                 input.addEventListener('change', calculate);
-             }
-        });
-        
-        // Listener for operator to reset hours
-        inputs.operator.addEventListener('change', () => {
-             if (inputs.operator.checked) {
-                 inputs.hours.value = 6; 
-             } else {
-                 inputs.hours.value = 0;
-             }
-             calculate();
-        });
+  function submit(){
+    const p = buildPayload();
+    const err = clientValidate(p);
+    if(err) return setMsg(err, "err");
 
-        document.getElementById('toggleSettings').addEventListener('click', () => {
-            document.getElementById('settingsPanel').classList.toggle('hidden');
-        });
+    setMsg("Відправляю заявку...", "muted");
+    google.script.run
+      .withSuccessHandler(res => {
+        const b = res.breakdown || {};
+        setMsg(
+          `<div class="ok"><b>Готово!</b> Заявка № <b>${res.orderId}</b></div>
+           <div class="total">Всього: ${b.total} ₴</div>
+           <div class="kpi">
+             <div class="box"><div class="muted">Передплата 30%</div><div><b>${b.prepay30} ₴</b></div></div>
+             <div class="box"><div class="muted">Досплата</div><div><b>${b.restToPay} ₴</b></div></div>
+           </div>
+           <div class="divider"></div>
+           <div class="muted">Застава: <b>${b.deposit} ₴</b> (оцінка обладнання: ${b.equipValue} ₴)</div>
+           <div class="muted">Коефіцієнти: зона ${b.zoneCoef} • терміновість ${b.urgencyCoef} • нічний ${b.nightCoef}</div>
+           <div class="muted">+Локація: ${b.locationPrice ? (b.locationPrice + " ₴") : "ні"}</div>`,
+          "ok"
+        );
+      })
+      .withFailureHandler(e => setMsg(e.message || String(e), "err"))
+      .submitOrder(p);
+  }
 
-        // Initial setup
-        calculate();
-        showTab(1); 
-    </script>
+  // init
+  onPackageChange();
+</script>
 </body>
 </html>
