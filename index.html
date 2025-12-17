@@ -1,556 +1,1040 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAIR | Калькулятор Оренди Ігрових Зон</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        bunker: '#2d2d2d',
-                        deep: '#1a1a1a', // Трохи темніший для фону
-                        sunset: '#E05A47',
-                        warm: '#F5F5F5',
-                        surface: '#3d3d3d'
-                    },
-                    fontFamily: {
-                        sans: ['Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1a1a1a; }
-        ::-webkit-scrollbar-thumb { background: #3d3d3d; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #E05A47; }
-        
-        /* Range Slider Customization */
-        input[type=range] {
-            -webkit-appearance: none; 
-            background: transparent;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 20px; width: 20px;
-            border-radius: 50%;
-            background: #E05A47;
-            cursor: pointer;
-            margin-top: -8px; 
-            box-shadow: 0 0 10px rgba(224, 90, 71, 0.5);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 4px;
-            cursor: pointer;
-            background: #555;
-            border-radius: 2px;
-        }
-        
-        /* Transitions */
-        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Admin Modal */
-        #admin-modal { background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px); }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LAIR — Калькулятор оренди</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --bg:#2d2d2d;
+      --accent:#E05A47;
+      --text:#F5F5F5;
+    }
+    html,body{height:100%;}
+    body{background:var(--bg); color:var(--text);}
+    /* premium scrollbar */
+    ::-webkit-scrollbar{width:10px;}
+    ::-webkit-scrollbar-track{background:rgba(255,255,255,.06);}
+    ::-webkit-scrollbar-thumb{background:rgba(224,90,71,.55); border-radius:999px;}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(224,90,71,.75);}
+
+    /* range slider */
+    input[type="range"]{
+      -webkit-appearance:none;
+      appearance:none;
+      width:100%;
+      height:10px;
+      border-radius:999px;
+      background:linear-gradient(90deg, var(--accent) 0%, rgba(255,255,255,.12) 0%);
+      outline:none;
+    }
+    input[type="range"]::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      appearance:none;
+      width:20px;height:20px;border-radius:999px;
+      background:var(--text);
+      border:2px solid rgba(224,90,71,.9);
+      box-shadow:0 6px 16px rgba(0,0,0,.35);
+      cursor:pointer;
+      transition:transform .15s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.06);}
+    input[type="range"]::-moz-range-thumb{
+      width:20px;height:20px;border-radius:999px;
+      background:var(--text);
+      border:2px solid rgba(224,90,71,.9);
+      box-shadow:0 6px 16px rgba(0,0,0,.35);
+      cursor:pointer;
+      transition:transform .15s ease;
+    }
+
+    .glass{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+      backdrop-filter: blur(10px);
+    }
+    .card{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow:0 12px 28px rgba(0,0,0,.28);
+      border-radius:20px;
+    }
+    .btn{
+      border-radius:16px;
+      transition:transform .12s ease, background .2s ease, border-color .2s ease, opacity .2s ease;
+    }
+    .btn:active{transform:translateY(1px) scale(.99);}
+    .tab-active{
+      background:rgba(224,90,71,.14);
+      border-color:rgba(224,90,71,.55);
+      color:var(--text);
+    }
+    .tab-inactive{
+      background:rgba(255,255,255,.04);
+      border-color:rgba(255,255,255,.10);
+      color:rgba(245,245,245,.85);
+    }
+    .pill{
+      border-radius:999px;
+      padding:.35rem .65rem;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+      color:rgba(245,245,245,.9);
+      font-size:.85rem;
+      line-height:1;
+      white-space:nowrap;
+    }
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+    .focus-ring:focus{
+      outline:none;
+      box-shadow:0 0 0 3px rgba(224,90,71,.35);
+      border-color:rgba(224,90,71,.55);
+    }
+  </style>
 </head>
-<body class="bg-deep text-warm font-sans min-h-screen flex flex-col">
 
-    <header class="bg-bunker shadow-lg border-b border-gray-700 py-4 sticky top-0 z-40">
-        <div class="container mx-auto px-4 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-sunset rounded transform rotate-45"></div>
-                <h1 class="text-2xl font-bold tracking-wider">LAIR <span class="text-sunset text-sm font-normal">RENTAL</span></h1>
-            </div>
-            <div class="text-xs text-gray-400 hidden sm:block">Професійний геймінг на виїзд</div>
+<body class="min-h-screen">
+  <!-- Top bar -->
+  <header class="w-full">
+    <div class="max-w-6xl mx-auto px-4 pt-6 pb-3">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl glass flex items-center justify-center">
+            <span class="mono text-[13px] tracking-widest" style="color:var(--accent);">LAIR</span>
+          </div>
+          <div>
+            <div class="text-xl font-semibold leading-tight">Калькулятор оренди</div>
+            <div class="text-sm opacity-80">Збери конфіг → побач ціну → відправ заявку</div>
+          </div>
         </div>
-    </header>
 
-    <main class="container mx-auto px-4 py-8 flex-grow">
-        <div class="flex flex-col lg:flex-row gap-8">
-            
-            <div class="w-full lg:w-2/3">
-                
-                <div class="flex border-b border-gray-600 mb-6 overflow-x-auto">
-                    <button class="tab-btn px-6 py-3 text-sm font-medium border-b-2 border-sunset text-sunset focus:outline-none transition-colors" onclick="switchTab(0)">1. Обладнання</button>
-                    <button class="tab-btn px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-warm focus:outline-none transition-colors" onclick="switchTab(1)">2. Логістика</button>
-                    <button class="tab-btn px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-warm focus:outline-none transition-colors" onclick="switchTab(2)">3. Контакти</button>
-                </div>
-
-                <div id="tab-0" class="tab-content active space-y-6">
-                    <div class="bg-bunker p-6 rounded-xl shadow-lg border border-gray-700">
-                        <div class="flex justify-between items-center mb-4">
-                            <div>
-                                <h3 class="text-xl font-bold text-white">Ігровий Ноутбук</h3>
-                                <p class="text-gray-400 text-sm">RTX 5070 / i7 / 32GB RAM</p>
-                            </div>
-                            <span class="text-sunset font-mono text-lg" id="price-display-laptop">1500 грн</span>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <input type="range" id="qty-laptop" min="0" max="10" value="0" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
-                            <span class="text-2xl font-bold w-12 text-center" id="val-laptop">0</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-bunker p-6 rounded-xl shadow-lg border border-gray-700">
-                        <div class="flex justify-between items-center mb-4">
-                            <div>
-                                <h3 class="text-xl font-bold text-white">PlayStation 5</h3>
-                                <p class="text-gray-400 text-sm">2 геймпади + підписка Deluxe</p>
-                            </div>
-                            <span class="text-sunset font-mono text-lg" id="price-display-ps5">1200 грн</span>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <input type="range" id="qty-ps5" min="0" max="10" value="0" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
-                            <span class="text-2xl font-bold w-12 text-center" id="val-ps5">0</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-bunker p-6 rounded-xl shadow-lg border border-gray-700">
-                        <div class="flex justify-between items-center mb-4">
-                            <div>
-                                <h3 class="text-xl font-bold text-white">ТВ 55" 4K + Стійка</h3>
-                                <p class="text-gray-400 text-sm">Обов'язково для консолей</p>
-                            </div>
-                            <span class="text-sunset font-mono text-lg" id="price-display-tv">1000 грн</span>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <input type="range" id="qty-tv" min="0" max="10" value="0" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
-                            <span class="text-2xl font-bold w-12 text-center" id="val-tv">0</span>
-                        </div>
-                        <p class="text-xs text-yellow-500 mt-2 hidden" id="tv-warning">⚠ Кількість ТВ підлаштовано під кількість PS5</p>
-                    </div>
-
-                    <div class="bg-bunker p-6 rounded-xl shadow-lg border border-gray-700">
-                        <div class="flex justify-between items-center mb-4">
-                            <div>
-                                <h3 class="text-xl font-bold text-white">VR Meta Quest 3</h3>
-                                <p class="text-gray-400 text-sm">Автономний режим або PCVR</p>
-                            </div>
-                            <span class="text-sunset font-mono text-lg" id="price-display-vr">1800 грн</span>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <input type="range" id="qty-vr" min="0" max="10" value="0" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
-                            <span class="text-2xl font-bold w-12 text-center" id="val-vr">0</span>
-                        </div>
-                    </div>
-                    
-                    <button onclick="switchTab(1)" class="w-full py-4 bg-surface hover:bg-gray-600 rounded-lg font-bold transition-all mt-4">Далі: Логістика →</button>
-                </div>
-
-                <div id="tab-1" class="tab-content space-y-6">
-                    
-                    <div class="bg-bunker p-6 rounded-xl shadow-lg border border-gray-700">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <div class="flex items-center gap-3">
-                                    <h3 class="text-xl font-bold text-white">Технічний Адміністратор</h3>
-                                    <input type="checkbox" id="check-admin" class="w-5 h-5 accent-sunset cursor-pointer rounded">
-                                </div>
-                                <p class="text-gray-400 text-sm mt-1">Супровід івенту, налаштування. Мін. 4 години.</p>
-                            </div>
-                            <span class="text-sunset font-mono text-lg" id="price-display-admin">300 грн/год</span>
-                        </div>
-                        
-                        <div id="admin-controls" class="opacity-50 pointer-events-none transition-opacity duration-300">
-                            <div class="flex items-center gap-4 mt-4">
-                                <span class="text-sm text-gray-400">Годин:</span>
-                                <input type="range" id="qty-admin" min="4" max="12" value="4" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
-                                <span class="text-2xl font-bold w-12 text-center" id="val-admin">4</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-bunker p-6 rounded-xl shadow-lg border border-gray-700">
-                        <h3 class="text-xl font-bold text-white mb-4">Зона Доставки</h3>
-                        <div class="relative">
-                            <select id="select-delivery" class="w-full bg-surface text-white border border-gray-600 rounded-lg px-4 py-3 appearance-none focus:outline-none focus:border-sunset">
-                                <option value="0">Самовивіз (0 грн)</option>
-                                <option value="1000">Ірпінь / Буча (1000 грн)</option>
-                                <option value="1500" selected>Київ (1500 грн)</option>
-                                <option value="2500">За містом до 30км (2500 грн)</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-4 mt-4">
-                        <button onclick="switchTab(0)" class="w-1/3 py-4 bg-transparent border border-gray-600 hover:bg-gray-700 rounded-lg font-bold transition-all">← Назад</button>
-                        <button onclick="switchTab(2)" class="w-2/3 py-4 bg-surface hover:bg-gray-600 rounded-lg font-bold transition-all">Далі: Контакти →</button>
-                    </div>
-                </div>
-
-                <div id="tab-2" class="tab-content space-y-6">
-                    <div class="bg-bunker p-6 rounded-xl shadow-lg border border-gray-700">
-                        <h3 class="text-xl font-bold text-white mb-6">Деталі Замовлення</h3>
-                        
-                        <form id="order-form" class="space-y-4" onsubmit="event.preventDefault(); submitOrder();">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-gray-400 text-sm mb-1">Ім'я *</label>
-                                    <input type="text" id="inp-name" required class="w-full bg-surface border border-gray-600 rounded p-3 focus:border-sunset outline-none transition-colors" placeholder="Ваше ім'я">
-                                </div>
-                                <div>
-                                    <label class="block text-gray-400 text-sm mb-1">Телефон *</label>
-                                    <input type="tel" id="inp-phone" required class="w-full bg-surface border border-gray-600 rounded p-3 focus:border-sunset outline-none transition-colors" placeholder="+380...">
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-gray-400 text-sm mb-1">Дата івенту *</label>
-                                    <input type="date" id="inp-date" required class="w-full bg-surface border border-gray-600 rounded p-3 focus:border-sunset outline-none transition-colors">
-                                </div>
-                                <div>
-                                    <label class="block text-gray-400 text-sm mb-1">Локація</label>
-                                    <input type="text" id="inp-location" class="w-full bg-surface border border-gray-600 rounded p-3 focus:border-sunset outline-none transition-colors" placeholder="Адреса або назва локації">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-gray-400 text-sm mb-1">Коментар</label>
-                                <textarea id="inp-comment" rows="3" class="w-full bg-surface border border-gray-600 rounded p-3 focus:border-sunset outline-none transition-colors" placeholder="Додаткові побажання..."></textarea>
-                            </div>
-
-                            <div id="form-feedback" class="hidden p-3 rounded text-center text-sm"></div>
-
-                            <button type="submit" id="btn-submit" class="w-full py-4 bg-sunset hover:bg-red-500 text-white font-bold rounded-lg shadow-lg shadow-red-900/50 transition-all transform active:scale-95">
-                                ЗАМОВИТИ
-                            </button>
-                        </form>
-                    </div>
-                    <button onclick="switchTab(1)" class="w-full py-4 bg-transparent border border-gray-600 hover:bg-gray-700 rounded-lg font-bold transition-all mt-4">← Назад до налаштувань</button>
-                </div>
-            </div>
-
-            <div class="w-full lg:w-1/3">
-                <div class="sticky top-24 bg-bunker/90 backdrop-blur border border-gray-600 rounded-xl p-6 shadow-2xl">
-                    <h2 class="text-xl font-bold border-b border-gray-600 pb-4 mb-4 text-white">Кошторис</h2>
-                    
-                    <div id="estimate-list" class="space-y-3 text-sm mb-6 min-h-[100px]">
-                        <div class="text-gray-500 italic text-center py-4">Оберіть обладнання...</div>
-                    </div>
-
-                    <div class="border-t border-gray-600 pt-4 mt-auto">
-                        <div class="flex justify-between items-center text-2xl font-bold text-white">
-                            <span>РАЗОМ:</span>
-                            <span id="total-price" class="text-sunset">0 грн</span>
-                        </div>
-                        <button onclick="copyEstimate()" class="w-full mt-4 py-2 text-xs text-gray-400 hover:text-white border border-gray-600 rounded hover:bg-gray-700 transition-colors flex justify-center items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                            Копіювати кошторис
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer class="bg-bunker border-t border-gray-700 py-6 mt-8 text-center text-gray-500 text-xs">
-        <p>&copy; 2025 LAIR Event Rental.</p>
-        <p class="mt-2 cursor-pointer hover:text-gray-700 transition-colors" onclick="toggleAdminPanel()">Налаштування цін</p>
-    </footer>
-
-    <div id="admin-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
-        <div class="bg-bunker w-full max-w-md p-6 rounded-xl border border-sunset shadow-2xl m-4">
-            <h2 class="text-xl font-bold text-sunset mb-4">Налаштування цін (Admin)</h2>
-            <div id="admin-inputs" class="space-y-3">
-                </div>
-            <div class="flex justify-end gap-3 mt-6">
-                <button onclick="toggleAdminPanel()" class="px-4 py-2 text-sm text-gray-300 hover:text-white">Скасувати</button>
-                <button onclick="savePrices()" class="px-4 py-2 bg-sunset text-white rounded text-sm font-bold">Зберегти</button>
-            </div>
-        </div>
+        <!-- Hidden / subtle admin entry -->
+        <button id="openAdminBtn"
+                class="text-xs opacity-55 hover:opacity-90 transition underline decoration-dotted underline-offset-4"
+                title="Налаштування цін (для менеджера)">
+          Налаштування цін
+        </button>
+      </div>
     </div>
+  </header>
 
-    <script>
-        // --- CONFIGURATION ---
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpxXWq8zhMM0ifO_cgZavHgrUq96RhlNy4aLA5qL0enEFpX4Luk7Xgf88S8s-cpHvlWg/exec'; 
+  <main class="max-w-6xl mx-auto px-4 pb-10">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Left: Tabs content -->
+      <section class="lg:col-span-8 space-y-4">
+        <!-- Tabs -->
+        <div class="card p-3">
+          <div class="grid grid-cols-3 gap-2">
+            <button class="btn border px-3 py-3 text-sm font-medium tab-active" data-tab="equipment">
+              1) Обладнання
+            </button>
+            <button class="btn border px-3 py-3 text-sm font-medium tab-inactive" data-tab="logistics">
+              2) Логістика & сервіс
+            </button>
+            <button class="btn border px-3 py-3 text-sm font-medium tab-inactive" data-tab="contacts">
+              3) Контакти
+            </button>
+          </div>
+        </div>
 
-        // Base Prices (Mutable via Admin Panel)
-        let prices = {
-            laptop: 1500,
-            ps5: 1200,
-            tv: 1000,
-            vr: 1800,
-            admin_hour: 300
+        <!-- Tab panels -->
+        <!-- Equipment -->
+        <div id="tab-equipment" class="card p-5 space-y-5">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-lg font-semibold">Обладнання</div>
+              <div class="text-sm opacity-80">Обирай кількість. Ціни — за добу.</div>
+            </div>
+            <span class="pill">Автокорекції: PS5 ↔ ТВ</span>
+          </div>
+
+          <!-- Slider blocks -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Laptops -->
+            <div class="glass rounded-2xl p-4 border border-white/10">
+              <div class="flex items-center justify-between">
+                <div class="font-medium">Ігрові ноутбуки <span class="opacity-80">(RTX 5070)</span></div>
+                <div class="pill"><span id="qtyLaptop">0</span> шт</div>
+              </div>
+              <div class="mt-3">
+                <input id="laptop" type="range" min="0" max="20" step="1" value="0" />
+                <div class="mt-2 text-xs opacity-70 flex justify-between">
+                  <span>0</span><span>20</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- PS5 -->
+            <div class="glass rounded-2xl p-4 border border-white/10">
+              <div class="flex items-center justify-between">
+                <div class="font-medium">PlayStation 5</div>
+                <div class="pill"><span id="qtyPS5">0</span> шт</div>
+              </div>
+              <div class="mt-3">
+                <input id="ps5" type="range" min="0" max="10" step="1" value="0" />
+                <div class="mt-2 text-xs opacity-70 flex justify-between">
+                  <span>0</span><span>10</span>
+                </div>
+              </div>
+              <div class="mt-2 text-xs opacity-70">
+                ТВ автоматично не може бути менше, ніж PS5.
+              </div>
+            </div>
+
+            <!-- VR -->
+            <div class="glass rounded-2xl p-4 border border-white/10">
+              <div class="flex items-center justify-between">
+                <div class="font-medium">VR шоломи <span class="opacity-80">(Quest 3)</span></div>
+                <div class="pill"><span id="qtyVR">0</span> шт</div>
+              </div>
+              <div class="mt-3">
+                <input id="vr" type="range" min="0" max="10" step="1" value="0" />
+                <div class="mt-2 text-xs opacity-70 flex justify-between">
+                  <span>0</span><span>10</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- TVs -->
+            <div class="glass rounded-2xl p-4 border border-white/10">
+              <div class="flex items-center justify-between">
+                <div class="font-medium">ТВ 50–55" + стійка</div>
+                <div class="pill"><span id="qtyTV">0</span> шт</div>
+              </div>
+              <div class="mt-3">
+                <input id="tv" type="range" min="0" max="10" step="1" value="0" />
+                <div class="mt-2 text-xs opacity-70 flex justify-between">
+                  <span>0</span><span>10</span>
+                </div>
+              </div>
+              <div class="mt-2 text-xs opacity-70">
+                Якщо PS5 &gt; ТВ — ми піднімемо ТВ до рівня PS5.
+              </div>
+            </div>
+          </div>
+
+          <!-- Days -->
+          <div class="glass rounded-2xl p-4 border border-white/10">
+            <div class="flex items-center justify-between">
+              <div class="font-medium">Тривалість оренди</div>
+              <div class="pill"><span id="qtyDays">1</span> доба</div>
+            </div>
+            <div class="mt-3">
+              <input id="days" type="range" min="1" max="7" step="1" value="1" />
+              <div class="mt-2 text-xs opacity-70 flex justify-between">
+                <span>1</span><span>7</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 pt-1">
+            <span class="pill">Преміальна подача</span>
+            <span class="pill">Сучасний dark UI</span>
+            <span class="pill">Живий кошторис справа</span>
+          </div>
+
+          <div class="flex justify-end">
+            <button id="toLogistics"
+                    class="btn px-4 py-3 border border-white/10 bg-white/5 hover:bg-white/10">
+              Далі → Логістика
+            </button>
+          </div>
+        </div>
+
+        <!-- Logistics -->
+        <div id="tab-logistics" class="card p-5 space-y-5 hidden">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-lg font-semibold">Логістика та сервіс</div>
+              <div class="text-sm opacity-80">Доставка + (за потреби) технічний адміністратор.</div>
+            </div>
+            <span class="pill">Адмін мін. 4 години</span>
+          </div>
+
+          <!-- Delivery select -->
+          <div class="glass rounded-2xl p-4 border border-white/10">
+            <label class="block text-sm font-medium mb-2">Зона доставки</label>
+            <select id="delivery" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10">
+              <option value="irpin_bucha">Ірпінь / Буча — 1000 грн</option>
+              <option value="kyiv">Київ — 1500 грн</option>
+              <option value="out_30">За містом (до 30км) — 2500 грн</option>
+            </select>
+            <div class="mt-2 text-xs opacity-70">Ціна доставки додається один раз до замовлення.</div>
+          </div>
+
+          <!-- Admin toggle + hours -->
+          <div class="glass rounded-2xl p-4 border border-white/10">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="font-medium">Технічний адміністратор</div>
+                <div class="text-xs opacity-70">Оплата погодинно. Якщо увімкнено — мінімум 4 години.</div>
+              </div>
+
+              <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                <span class="text-sm opacity-85">Додати</span>
+                <input id="adminEnabled" type="checkbox" class="h-5 w-5 accent-[var(--accent)]" />
+              </label>
+            </div>
+
+            <div id="adminHoursBlock" class="mt-4 hidden">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-medium">Години роботи адміністратора</div>
+                <div class="pill"><span id="qtyAdminHours">4</span> год</div>
+              </div>
+              <div class="mt-3">
+                <input id="adminHours" type="range" min="1" max="12" step="1" value="4" />
+                <div class="mt-2 text-xs opacity-70 flex justify-between">
+                  <span>1</span><span>12</span>
+                </div>
+              </div>
+              <div class="mt-2 text-xs opacity-70">
+                Якщо вибереш менше 4 — автоматично стане 4.
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-3">
+            <button id="backToEquipment"
+                    class="btn px-4 py-3 border border-white/10 bg-white/5 hover:bg-white/10">
+              ← Назад
+            </button>
+            <button id="toContacts"
+                    class="btn px-4 py-3 border border-white/10 bg-white/5 hover:bg-white/10">
+              Далі → Контакти
+            </button>
+          </div>
+        </div>
+
+        <!-- Contacts -->
+        <div id="tab-contacts" class="card p-5 space-y-5 hidden">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-lg font-semibold">Контакти</div>
+              <div class="text-sm opacity-80">Заповни форму — і ми підтвердимо деталі та фінальну ціну.</div>
+            </div>
+            <span class="pill">Поля * обовʼязкові</span>
+          </div>
+
+          <form id="orderForm" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-2">Імʼя *</label>
+                <input id="name" type="text" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10"
+                       placeholder="Напр. Микита" required />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2">Телефон *</label>
+                <input id="phone" type="tel" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10"
+                       placeholder="+380..." required />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2">Дата івенту *</label>
+                <input id="eventDate" type="date" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10"
+                       required />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-2">Локація</label>
+                <input id="location" type="text" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10"
+                       placeholder="Адреса / назва закладу" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-2">Коментар</label>
+              <textarea id="comment" rows="4" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10"
+                        placeholder="Коротко: формат івенту, час початку, побажання по сетапу..."></textarea>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between pt-1">
+              <button type="button" id="copyEstimate"
+                      class="btn px-4 py-3 border border-white/10 bg-white/5 hover:bg-white/10">
+                Копіювати кошторис
+              </button>
+
+              <div class="flex items-center gap-3">
+                <button type="button" id="backToLogistics"
+                        class="btn px-4 py-3 border border-white/10 bg-white/5 hover:bg-white/10">
+                  ← Назад
+                </button>
+                <button type="submit" id="submitOrder"
+                        class="btn px-5 py-3 border border-[rgba(224,90,71,.55)] bg-[rgba(224,90,71,.16)] hover:bg-[rgba(224,90,71,.24)]">
+                  Замовити
+                </button>
+              </div>
+            </div>
+
+            <div id="formMsg" class="hidden text-sm rounded-2xl px-4 py-3 border"></div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Right: Sticky estimate -->
+      <aside class="lg:col-span-4">
+        <div class="sticky top-4 space-y-4">
+          <div class="card p-5">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="text-lg font-semibold">Кошторис</div>
+                <div class="text-sm opacity-80">Орієнтовно (без знижок).</div>
+              </div>
+              <span class="pill mono" id="badgeDays">× 1d</span>
+            </div>
+
+            <div class="mt-4 space-y-3 text-sm">
+              <div class="flex items-center justify-between">
+                <span class="opacity-85">Ноутбуки</span>
+                <span class="mono" id="sumLaptop">0</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="opacity-85">PS5</span>
+                <span class="mono" id="sumPS5">0</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="opacity-85">VR</span>
+                <span class="mono" id="sumVR">0</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="opacity-85">ТВ + стійки</span>
+                <span class="mono" id="sumTV">0</span>
+              </div>
+
+              <div class="h-px bg-white/10 my-2"></div>
+
+              <div class="flex items-center justify-between">
+                <span class="opacity-85">Доставка</span>
+                <span class="mono" id="sumDelivery">0</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="opacity-85">Адміністратор</span>
+                <span class="mono" id="sumAdmin">0</span>
+              </div>
+
+              <div class="h-px bg-white/10 my-2"></div>
+
+              <div class="flex items-center justify-between text-base">
+                <span class="font-semibold">Разом</span>
+                <span class="mono font-semibold" id="sumTotal" style="color:var(--accent);">0</span>
+              </div>
+
+              <div class="text-xs opacity-70 pt-2">
+                * Лояльність/знижка на сайті прихована (0%). Фінальна ціна може уточнюватися менеджером.
+              </div>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <span class="pill" id="pillAutoTV">TV ≥ PS5: OK</span>
+              <span class="pill" id="pillAdminMin">Адмін: —</span>
+              <span class="pill" id="pillDelivery">Доставка: —</span>
+            </div>
+          </div>
+
+          <div class="card p-5">
+            <div class="text-sm opacity-80 mb-2">Деталі (для копіювання)</div>
+            <pre id="estimateText" class="mono text-xs whitespace-pre-wrap bg-white/5 border border-white/10 rounded-2xl p-4 max-h-56 overflow-auto"></pre>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Admin panel modal -->
+  <div id="adminModal" class="fixed inset-0 hidden items-center justify-center p-4 z-50">
+    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="relative w-full max-w-2xl card p-5">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <div class="text-lg font-semibold">Налаштування цін</div>
+          <div class="text-sm opacity-80">Менеджер може змінювати ціни без редагування коду (зберігається у браузері).</div>
+        </div>
+        <button id="closeAdminBtn" class="btn px-3 py-2 border border-white/10 bg-white/5 hover:bg-white/10">✕</button>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div class="glass rounded-2xl p-4 border border-white/10">
+          <label class="block font-medium mb-2">Ноутбук / доба (грн)</label>
+          <input id="priceLaptop" type="number" min="0" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10" />
+        </div>
+        <div class="glass rounded-2xl p-4 border border-white/10">
+          <label class="block font-medium mb-2">PS5 / доба (грн)</label>
+          <input id="pricePS5" type="number" min="0" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10" />
+        </div>
+        <div class="glass rounded-2xl p-4 border border-white/10">
+          <label class="block font-medium mb-2">VR / доба (грн)</label>
+          <input id="priceVR" type="number" min="0" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10" />
+        </div>
+        <div class="glass rounded-2xl p-4 border border-white/10">
+          <label class="block font-medium mb-2">ТВ+стійка / доба (грн)</label>
+          <input id="priceTV" type="number" min="0" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10" />
+        </div>
+        <div class="glass rounded-2xl p-4 border border-white/10 md:col-span-2">
+          <label class="block font-medium mb-2">Адміністратор / година (грн)</label>
+          <input id="priceAdmin" type="number" min="0" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10" />
+        </div>
+        <div class="glass rounded-2xl p-4 border border-white/10">
+          <label class="block font-medium mb-2">Доставка: Ірпінь/Буча (грн)</label>
+          <input id="priceDelIrpin" type="number" min="0" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10" />
+        </div>
+        <div class="glass rounded-2xl p-4 border border-white/10">
+          <label class="block font-medium mb-2">Доставка: Київ (грн)</label>
+          <input id="priceDelKyiv" type="number" min="0" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10" />
+        </div>
+        <div class="glass rounded-2xl p-4 border border-white/10 md:col-span-2">
+          <label class="block font-medium mb-2">Доставка: За містом до 30км (грн)</label>
+          <input id="priceDelOut" type="number" min="0" class="w-full focus-ring rounded-2xl px-4 py-3 bg-white/5 border border-white/10" />
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+        <div class="text-xs opacity-70">
+          Порада: ці налаштування зберігаються в <span class="mono">localStorage</span> (тільки на цьому пристрої/браузері).
+        </div>
+        <div class="flex gap-3">
+          <button id="resetPricesBtn" class="btn px-4 py-3 border border-white/10 bg-white/5 hover:bg-white/10">
+            Скинути
+          </button>
+          <button id="savePricesBtn" class="btn px-4 py-3 border border-[rgba(224,90,71,.55)] bg-[rgba(224,90,71,.16)] hover:bg-[rgba(224,90,71,.24)]">
+            Зберегти
+          </button>
+        </div>
+      </div>
+
+      <div id="adminMsg" class="hidden mt-3 text-sm rounded-2xl px-4 py-3 border"></div>
+    </div>
+  </div>
+
+  <script>
+    /********************
+     * CONFIG / BACKEND
+     ********************/
+    const APPS_SCRIPT_URL = 'YOUR_URL_HERE'; // <-- встав сюди URL Web App Google Apps Script
+
+    /********************
+     * PRICES (editable)
+     ********************/
+    const DEFAULT_PRICES = {
+      laptopPerDay: 1500,
+      ps5PerDay: 1200,
+      vrPerDay: 1800,
+      tvPerDay: 1000,
+      adminPerHour: 300,
+      delivery: {
+        irpin_bucha: 1000,
+        kyiv: 1500,
+        out_30: 2500
+      }
+    };
+
+    let PRICES = loadPrices();
+
+    function loadPrices(){
+      try{
+        const raw = localStorage.getItem('LAIR_PRICES_V1');
+        if(!raw) return structuredClone(DEFAULT_PRICES);
+        const parsed = JSON.parse(raw);
+        // shallow merge with defaults (safety)
+        return {
+          ...structuredClone(DEFAULT_PRICES),
+          ...parsed,
+          delivery: { ...structuredClone(DEFAULT_PRICES.delivery), ...(parsed.delivery || {}) }
         };
+      }catch(e){
+        return structuredClone(DEFAULT_PRICES);
+      }
+    }
+    function savePrices(p){
+      localStorage.setItem('LAIR_PRICES_V1', JSON.stringify(p));
+    }
+    function resetPrices(){
+      localStorage.removeItem('LAIR_PRICES_V1');
+      PRICES = structuredClone(DEFAULT_PRICES);
+    }
 
-        // Labels for Summary
-        const labels = {
-            laptop: 'Ігровий Ноутбук',
-            ps5: 'PlayStation 5',
-            tv: 'ТВ 55" + Стійка',
-            vr: 'VR Meta Quest 3',
-            admin_hour: 'Тех. Адміністратор',
-            delivery: 'Доставка'
-        };
+    /********************
+     * DOM refs
+     ********************/
+    const tabs = document.querySelectorAll('[data-tab]');
+    const panels = {
+      equipment: document.getElementById('tab-equipment'),
+      logistics: document.getElementById('tab-logistics'),
+      contacts: document.getElementById('tab-contacts')
+    };
 
-        // DOM Elements
-        const inputs = {
-            laptop: document.getElementById('qty-laptop'),
-            ps5: document.getElementById('qty-ps5'),
-            tv: document.getElementById('qty-tv'),
-            vr: document.getElementById('qty-vr'),
-            adminCheck: document.getElementById('check-admin'),
-            adminHours: document.getElementById('qty-admin'),
-            delivery: document.getElementById('select-delivery')
-        };
+    const el = {
+      // sliders
+      laptop: document.getElementById('laptop'),
+      ps5: document.getElementById('ps5'),
+      vr: document.getElementById('vr'),
+      tv: document.getElementById('tv'),
+      days: document.getElementById('days'),
 
-        const displays = {
-            laptop: document.getElementById('val-laptop'),
-            ps5: document.getElementById('val-ps5'),
-            tv: document.getElementById('val-tv'),
-            vr: document.getElementById('val-vr'),
-            adminHours: document.getElementById('val-admin'),
-            estimate: document.getElementById('estimate-list'),
-            total: document.getElementById('total-price')
-        };
+      // admin
+      adminEnabled: document.getElementById('adminEnabled'),
+      adminHours: document.getElementById('adminHours'),
+      adminHoursBlock: document.getElementById('adminHoursBlock'),
 
-        // --- INITIALIZATION ---
-        function init() {
-            // Attach listeners
-            Object.keys(inputs).forEach(key => {
-                if(inputs[key].type === 'checkbox' || inputs[key].tagName === 'SELECT') {
-                    inputs[key].addEventListener('change', updateState);
-                } else {
-                    inputs[key].addEventListener('input', updateState);
-                }
-            });
+      // delivery
+      delivery: document.getElementById('delivery'),
 
-            // Admin Logic specific listener
-            inputs.adminCheck.addEventListener('change', () => {
-                const controls = document.getElementById('admin-controls');
-                if (inputs.adminCheck.checked) {
-                    controls.classList.remove('opacity-50', 'pointer-events-none');
-                    // Reset to min if checked
-                    if(inputs.adminHours.value < 4) inputs.adminHours.value = 4;
-                } else {
-                    controls.classList.add('opacity-50', 'pointer-events-none');
-                }
-                updateState();
-            });
-            
-            // PS5 vs TV Logic specific listener
-            inputs.ps5.addEventListener('input', () => {
-                const ps5Val = parseInt(inputs.ps5.value);
-                const tvVal = parseInt(inputs.tv.value);
-                if (ps5Val > tvVal) {
-                    inputs.tv.value = ps5Val;
-                    document.getElementById('tv-warning').classList.remove('hidden');
-                    setTimeout(() => document.getElementById('tv-warning').classList.add('hidden'), 3000);
-                }
-                updateState();
-            });
+      // qty labels
+      qtyLaptop: document.getElementById('qtyLaptop'),
+      qtyPS5: document.getElementById('qtyPS5'),
+      qtyVR: document.getElementById('qtyVR'),
+      qtyTV: document.getElementById('qtyTV'),
+      qtyDays: document.getElementById('qtyDays'),
+      qtyAdminHours: document.getElementById('qtyAdminHours'),
 
-            inputs.tv.addEventListener('change', () => {
-                const ps5Val = parseInt(inputs.ps5.value);
-                const tvVal = parseInt(inputs.tv.value);
-                if (tvVal < ps5Val) {
-                    inputs.tv.value = ps5Val; // Force snap back
-                    alert('Кількість ТВ не може бути меншою за кількість консолей.');
-                }
-                updateState();
-            });
-            
-            // Admin Hours Min Logic
-            inputs.adminHours.addEventListener('change', () => {
-                if(inputs.adminHours.value < 4) inputs.adminHours.value = 4;
-                updateState();
-            });
+      // estimate sums
+      sumLaptop: document.getElementById('sumLaptop'),
+      sumPS5: document.getElementById('sumPS5'),
+      sumVR: document.getElementById('sumVR'),
+      sumTV: document.getElementById('sumTV'),
+      sumDelivery: document.getElementById('sumDelivery'),
+      sumAdmin: document.getElementById('sumAdmin'),
+      sumTotal: document.getElementById('sumTotal'),
 
-            updateState();
+      // pills / badges
+      badgeDays: document.getElementById('badgeDays'),
+      pillAutoTV: document.getElementById('pillAutoTV'),
+      pillAdminMin: document.getElementById('pillAdminMin'),
+      pillDelivery: document.getElementById('pillDelivery'),
+
+      // estimate text + copy
+      estimateText: document.getElementById('estimateText'),
+      copyEstimate: document.getElementById('copyEstimate'),
+
+      // nav buttons
+      toLogistics: document.getElementById('toLogistics'),
+      toContacts: document.getElementById('toContacts'),
+      backToEquipment: document.getElementById('backToEquipment'),
+      backToLogistics: document.getElementById('backToLogistics'),
+
+      // form
+      orderForm: document.getElementById('orderForm'),
+      submitOrder: document.getElementById('submitOrder'),
+      formMsg: document.getElementById('formMsg'),
+      name: document.getElementById('name'),
+      phone: document.getElementById('phone'),
+      eventDate: document.getElementById('eventDate'),
+      location: document.getElementById('location'),
+      comment: document.getElementById('comment'),
+
+      // admin modal
+      adminModal: document.getElementById('adminModal'),
+      openAdminBtn: document.getElementById('openAdminBtn'),
+      closeAdminBtn: document.getElementById('closeAdminBtn'),
+      savePricesBtn: document.getElementById('savePricesBtn'),
+      resetPricesBtn: document.getElementById('resetPricesBtn'),
+      adminMsg: document.getElementById('adminMsg'),
+
+      // admin inputs
+      priceLaptop: document.getElementById('priceLaptop'),
+      pricePS5: document.getElementById('pricePS5'),
+      priceVR: document.getElementById('priceVR'),
+      priceTV: document.getElementById('priceTV'),
+      priceAdmin: document.getElementById('priceAdmin'),
+      priceDelIrpin: document.getElementById('priceDelIrpin'),
+      priceDelKyiv: document.getElementById('priceDelKyiv'),
+      priceDelOut: document.getElementById('priceDelOut'),
+    };
+
+    /********************
+     * Utilities
+     ********************/
+    const fmtUAH = (n) => {
+      const v = Math.round(Number(n || 0));
+      return v.toLocaleString('uk-UA') + ' грн';
+    };
+
+    function setRangeFill(range){
+      const min = Number(range.min);
+      const max = Number(range.max);
+      const val = Number(range.value);
+      const pct = ((val - min) / (max - min)) * 100;
+      range.style.background = `linear-gradient(90deg, var(--accent) ${pct}%, rgba(255,255,255,.12) ${pct}%)`;
+    }
+
+    function showMsg(target, text, type='ok'){
+      target.classList.remove('hidden');
+      target.textContent = text;
+      target.className = target.className.replace(/\bborder-\S+/g,'').replace(/\bbg-\S+/g,'');
+      // keep base
+      target.classList.add('text-sm','rounded-2xl','px-4','py-3','border');
+      if(type === 'ok'){
+        target.classList.add('border-emerald-400/30');
+        target.style.background = 'rgba(16,185,129,.10)';
+        target.style.color = 'rgba(245,245,245,.95)';
+      } else if(type === 'warn'){
+        target.classList.add('border-amber-400/30');
+        target.style.background = 'rgba(245,158,11,.10)';
+        target.style.color = 'rgba(245,245,245,.95)';
+      } else {
+        target.classList.add('border-rose-400/30');
+        target.style.background = 'rgba(244,63,94,.10)';
+        target.style.color = 'rgba(245,245,245,.95)';
+      }
+    }
+
+    function hideMsg(target){
+      target.classList.add('hidden');
+      target.textContent = '';
+    }
+
+    /********************
+     * Tabs
+     ********************/
+    function activateTab(name){
+      Object.keys(panels).forEach(k => panels[k].classList.toggle('hidden', k !== name));
+      tabs.forEach(btn => {
+        const isActive = btn.dataset.tab === name;
+        btn.classList.toggle('tab-active', isActive);
+        btn.classList.toggle('tab-inactive', !isActive);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    tabs.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
+
+    el.toLogistics.addEventListener('click', () => activateTab('logistics'));
+    el.toContacts.addEventListener('click', () => activateTab('contacts'));
+    el.backToEquipment.addEventListener('click', () => activateTab('equipment'));
+    el.backToLogistics.addEventListener('click', () => activateTab('logistics'));
+
+    /********************
+     * Constraints
+     ********************/
+    function enforceTVNotLessThanPS5(){
+      const ps5 = Number(el.ps5.value);
+      const tv = Number(el.tv.value);
+      if(tv < ps5){
+        el.tv.value = ps5;
+        setRangeFill(el.tv);
+      }
+      el.pillAutoTV.textContent = `TV ≥ PS5: ${Number(el.tv.value) >= ps5 ? 'OK' : 'FIX'}`;
+    }
+
+    function enforceAdminMinHours(){
+      if(!el.adminEnabled.checked){
+        el.pillAdminMin.textContent = 'Адмін: —';
+        return;
+      }
+      let h = Number(el.adminHours.value);
+      if(h < 4){
+        h = 4;
+        el.adminHours.value = '4';
+        setRangeFill(el.adminHours);
+      }
+      el.pillAdminMin.textContent = `Адмін: ${h} год`;
+    }
+
+    /********************
+     * State + Calculation
+     ********************/
+    function getState(){
+      const days = Number(el.days.value);
+
+      const items = {
+        laptop: Number(el.laptop.value),
+        ps5: Number(el.ps5.value),
+        vr: Number(el.vr.value),
+        tv: Number(el.tv.value),
+      };
+
+      const admin = {
+        enabled: el.adminEnabled.checked,
+        hours: el.adminEnabled.checked ? Math.max(4, Number(el.adminHours.value)) : 0
+      };
+
+      const deliveryKey = el.delivery.value;
+      const deliveryCost = PRICES.delivery[deliveryKey] ?? 0;
+
+      return { days, items, admin, deliveryKey, deliveryCost };
+    }
+
+    function calcTotals(state){
+      const d = state.days;
+
+      const sumLaptop = state.items.laptop * PRICES.laptopPerDay * d;
+      const sumPS5    = state.items.ps5    * PRICES.ps5PerDay    * d;
+      const sumVR     = state.items.vr     * PRICES.vrPerDay     * d;
+      const sumTV     = state.items.tv     * PRICES.tvPerDay     * d;
+
+      const sumDelivery = state.deliveryCost; // one-time
+      const sumAdmin    = state.admin.enabled ? (state.admin.hours * PRICES.adminPerHour) : 0;
+
+      const subtotal = sumLaptop + sumPS5 + sumVR + sumTV;
+      const total = subtotal + sumDelivery + sumAdmin;
+
+      return { sumLaptop, sumPS5, sumVR, sumTV, sumDelivery, sumAdmin, subtotal, total };
+    }
+
+    function buildEstimateText(state, totals){
+      const deliveryLabel = {
+        irpin_bucha: 'Ірпінь / Буча',
+        kyiv: 'Київ',
+        out_30: 'За містом (до 30км)'
+      }[state.deliveryKey] || state.deliveryKey;
+
+      const lines = [];
+      lines.push('LAIR — Заявка на оренду (орієнтовний кошторис)');
+      lines.push('—'.repeat(48));
+      lines.push(`Днів оренди: ${state.days}`);
+      lines.push('');
+      lines.push('Обладнання:');
+      lines.push(`• Ноутбуки (RTX 5070): ${state.items.laptop} шт × ${fmtUAH(PRICES.laptopPerDay)}/доба = ${fmtUAH(totals.sumLaptop)}`);
+      lines.push(`• PS5: ${state.items.ps5} шт × ${fmtUAH(PRICES.ps5PerDay)}/доба = ${fmtUAH(totals.sumPS5)}`);
+      lines.push(`• VR (Quest 3): ${state.items.vr} шт × ${fmtUAH(PRICES.vrPerDay)}/доба = ${fmtUAH(totals.sumVR)}`);
+      lines.push(`• ТВ 50–55" + стійка: ${state.items.tv} шт × ${fmtUAH(PRICES.tvPerDay)}/доба = ${fmtUAH(totals.sumTV)}`);
+      lines.push('');
+      lines.push(`Доставка: ${deliveryLabel} = ${fmtUAH(totals.sumDelivery)}`);
+      lines.push(`Тех. адміністратор: ${state.admin.enabled ? (state.admin.hours + ' год × ' + fmtUAH(PRICES.adminPerHour) + '/год = ' + fmtUAH(totals.sumAdmin)) : 'не потрібно'}`);
+      lines.push('—'.repeat(48));
+      lines.push(`РАЗОМ: ${fmtUAH(totals.total)}`);
+      lines.push('');
+      lines.push('* Знижка/лояльність на сайті: 0% (узгоджується менеджером).');
+
+      return lines.join('\n');
+    }
+
+    function render(){
+      // enforce constraints first
+      enforceTVNotLessThanPS5();
+      enforceAdminMinHours();
+
+      const state = getState();
+
+      // labels
+      el.qtyLaptop.textContent = state.items.laptop;
+      el.qtyPS5.textContent = state.items.ps5;
+      el.qtyVR.textContent = state.items.vr;
+      el.qtyTV.textContent = state.items.tv;
+      el.qtyDays.textContent = state.days;
+      el.badgeDays.textContent = `× ${state.days}d`;
+      if(el.adminEnabled.checked){
+        el.qtyAdminHours.textContent = state.admin.hours;
+      }
+
+      // delivery pill
+      const deliveryLabelShort = {
+        irpin_bucha: 'Ірпінь/Буча',
+        kyiv: 'Київ',
+        out_30: 'до 30км'
+      }[state.deliveryKey] || '—';
+      el.pillDelivery.textContent = `Доставка: ${deliveryLabelShort}`;
+
+      // totals
+      const totals = calcTotals(state);
+
+      el.sumLaptop.textContent = fmtUAH(totals.sumLaptop);
+      el.sumPS5.textContent = fmtUAH(totals.sumPS5);
+      el.sumVR.textContent = fmtUAH(totals.sumVR);
+      el.sumTV.textContent = fmtUAH(totals.sumTV);
+      el.sumDelivery.textContent = fmtUAH(totals.sumDelivery);
+      el.sumAdmin.textContent = fmtUAH(totals.sumAdmin);
+      el.sumTotal.textContent = fmtUAH(totals.total);
+
+      // estimate text
+      el.estimateText.textContent = buildEstimateText(state, totals);
+    }
+
+    /********************
+     * Events (sliders)
+     ********************/
+    const rangeInputs = [el.laptop, el.ps5, el.vr, el.tv, el.days, el.adminHours];
+    rangeInputs.forEach(r => {
+      setRangeFill(r);
+      r.addEventListener('input', () => {
+        setRangeFill(r);
+        if(r === el.ps5 || r === el.tv) enforceTVNotLessThanPS5();
+        if(r === el.adminHours) enforceAdminMinHours();
+        render();
+      });
+    });
+
+    el.delivery.addEventListener('change', render);
+
+    el.adminEnabled.addEventListener('change', () => {
+      el.adminHoursBlock.classList.toggle('hidden', !el.adminEnabled.checked);
+      if(el.adminEnabled.checked){
+        // ensure minimum 4
+        el.adminHours.value = String(Math.max(4, Number(el.adminHours.value || 4)));
+        setRangeFill(el.adminHours);
+      }
+      render();
+    });
+
+    // initial
+    el.adminHoursBlock.classList.add('hidden');
+    render();
+
+    /********************
+     * Copy estimate
+     ********************/
+    el.copyEstimate.addEventListener('click', async () => {
+      try{
+        await navigator.clipboard.writeText(el.estimateText.textContent);
+        showMsg(el.formMsg, 'Кошторис скопійовано в буфер обміну ✅', 'ok');
+        setTimeout(()=>hideMsg(el.formMsg), 2500);
+      }catch(e){
+        showMsg(el.formMsg, 'Не вдалося скопіювати. Спробуй виділити текст вручну.', 'warn');
+        setTimeout(()=>hideMsg(el.formMsg), 3500);
+      }
+    });
+
+    /********************
+     * Submit order
+     ********************/
+    el.orderForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      hideMsg(el.formMsg);
+
+      // validation
+      const name = el.name.value.trim();
+      const phone = el.phone.value.trim();
+      const eventDate = el.eventDate.value;
+
+      if(!name || !phone || !eventDate){
+        showMsg(el.formMsg, 'Заповни обовʼязкові поля: Імʼя, Телефон, Дата івенту.', 'warn');
+        return;
+      }
+
+      // build payload
+      const state = getState();
+      const totals = calcTotals(state);
+
+      const payload = {
+        source: 'LAIR_CALCULATOR',
+        createdAt: new Date().toISOString(),
+        customer: {
+          name,
+          phone,
+          eventDate,
+          location: el.location.value.trim(),
+          comment: el.comment.value.trim()
+        },
+        config: {
+          days: state.days,
+          items: state.items,
+          deliveryZone: state.deliveryKey,
+          admin: state.admin
+        },
+        pricesUsed: PRICES,
+        totals: {
+          laptop: totals.sumLaptop,
+          ps5: totals.sumPS5,
+          vr: totals.sumVR,
+          tv: totals.sumTV,
+          delivery: totals.sumDelivery,
+          admin: totals.sumAdmin,
+          total: totals.total
+        },
+        estimateText: el.estimateText.textContent,
+        discountPercent: 0
+      };
+
+      // UI lock
+      el.submitOrder.disabled = true;
+      el.submitOrder.style.opacity = '0.75';
+
+      try{
+        if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'YOUR_URL_HERE'){
+          throw new Error('APPS_SCRIPT_URL not set');
         }
 
-        // --- CORE LOGIC ---
-        function updateState() {
-            // Update Display Values next to sliders
-            displays.laptop.innerText = inputs.laptop.value;
-            displays.ps5.innerText = inputs.ps5.value;
-            displays.tv.innerText = inputs.tv.value;
-            displays.vr.innerText = inputs.vr.value;
-            displays.adminHours.innerText = inputs.adminHours.value;
+        const res = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          mode: 'cors'
+        });
 
-            calculateTotal();
+        // many GAS apps return text; be tolerant
+        const text = await res.text();
+        if(!res.ok){
+          throw new Error(text || 'Request failed');
         }
 
-        function calculateTotal() {
-            let total = 0;
-            let html = '';
+        showMsg(el.formMsg, 'Заявку відправлено ✅ Ми звʼяжемось з тобою найближчим часом.', 'ok');
+        // optional: reset contact fields only
+        // el.orderForm.reset();
 
-            // Helper to add line item
-            const addItem = (name, qty, unitPrice) => {
-                if (qty > 0) {
-                    const sum = qty * unitPrice;
-                    total += sum;
-                    html += `
-                        <div class="flex justify-between items-center animate-pulse-short">
-                            <span class="text-gray-300">${name} <span class="text-xs text-gray-500">x${qty}</span></span>
-                            <span class="font-mono text-white">${sum} ₴</span>
-                        </div>
-                    `;
-                }
-            };
+      }catch(err){
+        const msg = (String(err && err.message || err)).includes('APPS_SCRIPT_URL not set')
+          ? 'Помилка: не задано APPS_SCRIPT_URL. Встав URL вашого Google Apps Script Web App.'
+          : 'Не вдалося відправити заявку ❌ Перевір інтернет/URL Web App або CORS налаштування.';
+        showMsg(el.formMsg, msg, 'err');
+      }finally{
+        el.submitOrder.disabled = false;
+        el.submitOrder.style.opacity = '1';
+      }
+    });
 
-            // Equipment
-            addItem(labels.laptop, parseInt(inputs.laptop.value), prices.laptop);
-            addItem(labels.ps5, parseInt(inputs.ps5.value), prices.ps5);
-            addItem(labels.tv, parseInt(inputs.tv.value), prices.tv);
-            addItem(labels.vr, parseInt(inputs.vr.value), prices.vr);
+    /********************
+     * Admin mode
+     ********************/
+    function openAdmin(){
+      // populate inputs
+      el.priceLaptop.value = PRICES.laptopPerDay;
+      el.pricePS5.value = PRICES.ps5PerDay;
+      el.priceVR.value = PRICES.vrPerDay;
+      el.priceTV.value = PRICES.tvPerDay;
+      el.priceAdmin.value = PRICES.adminPerHour;
+      el.priceDelIrpin.value = PRICES.delivery.irpin_bucha;
+      el.priceDelKyiv.value = PRICES.delivery.kyiv;
+      el.priceDelOut.value = PRICES.delivery.out_30;
 
-            // Services
-            if (inputs.adminCheck.checked) {
-                const hours = Math.max(4, parseInt(inputs.adminHours.value));
-                addItem(`${labels.admin_hour} (${hours}год)`, 1, hours * prices.admin_hour);
-            }
+      hideMsg(el.adminMsg);
+      el.adminModal.classList.remove('hidden');
+      el.adminModal.classList.add('flex');
+    }
+    function closeAdmin(){
+      el.adminModal.classList.add('hidden');
+      el.adminModal.classList.remove('flex');
+    }
 
-            // Delivery
-            const deliveryPrice = parseInt(inputs.delivery.value);
-            if (deliveryPrice > 0) {
-                const deliveryName = inputs.delivery.options[inputs.delivery.selectedIndex].text.split('(')[0];
-                total += deliveryPrice;
-                html += `
-                    <div class="flex justify-between items-center border-t border-gray-700 pt-2 mt-2">
-                        <span class="text-gray-300">${deliveryName}</span>
-                        <span class="font-mono text-white">${deliveryPrice} ₴</span>
-                    </div>
-                `;
-            }
+    el.openAdminBtn.addEventListener('click', openAdmin);
+    el.closeAdminBtn.addEventListener('click', closeAdmin);
+    el.adminModal.addEventListener('click', (e) => {
+      if(e.target === el.adminModal) closeAdmin();
+    });
+    window.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape' && !el.adminModal.classList.contains('hidden')) closeAdmin();
+    });
 
-            if (total === 0) {
-                displays.estimate.innerHTML = '<div class="text-gray-500 italic text-center py-4">Оберіть обладнання...</div>';
-            } else {
-                displays.estimate.innerHTML = html;
-            }
-            
-            displays.total.innerText = total + ' грн';
-        }
+    el.savePricesBtn.addEventListener('click', () => {
+      const next = structuredClone(PRICES);
+      const n = (x) => Math.max(0, Number(x || 0));
 
-        // --- TABS NAVIGATION ---
-        function switchTab(index) {
-            const tabs = document.querySelectorAll('.tab-content');
-            const btns = document.querySelectorAll('.tab-btn');
-            
-            tabs.forEach(t => t.classList.remove('active'));
-            btns.forEach(b => {
-                b.classList.remove('border-sunset', 'text-sunset');
-                b.classList.add('border-transparent', 'text-gray-400');
-            });
+      next.laptopPerDay = n(el.priceLaptop.value);
+      next.ps5PerDay = n(el.pricePS5.value);
+      next.vrPerDay = n(el.priceVR.value);
+      next.tvPerDay = n(el.priceTV.value);
+      next.adminPerHour = n(el.priceAdmin.value);
 
-            tabs[index].classList.add('active');
-            btns[index].classList.remove('border-transparent', 'text-gray-400');
-            btns[index].classList.add('border-sunset', 'text-sunset');
-        }
+      next.delivery = {
+        irpin_bucha: n(el.priceDelIrpin.value),
+        kyiv: n(el.priceDelKyiv.value),
+        out_30: n(el.priceDelOut.value)
+      };
 
-        // --- SUBMISSION ---
-        function submitOrder() {
-            const btn = document.getElementById('btn-submit');
-            const feedback = document.getElementById('form-feedback');
-            
-            // Collect Data
-            const orderData = {
-                customer: {
-                    name: document.getElementById('inp-name').value,
-                    phone: document.getElementById('inp-phone').value,
-                    date: document.getElementById('inp-date').value,
-                    location: document.getElementById('inp-location').value,
-                    comment: document.getElementById('inp-comment').value
-                },
-                order: {
-                    laptop: inputs.laptop.value,
-                    ps5: inputs.ps5.value,
-                    tv: inputs.tv.value,
-                    vr: inputs.vr.value,
-                    admin: inputs.adminCheck.checked ? inputs.adminHours.value : 0,
-                    deliveryZone: inputs.delivery.options[inputs.delivery.selectedIndex].text,
-                    deliveryCost: inputs.delivery.value,
-                    totalEstimate: document.getElementById('total-price').innerText
-                },
-                timestamp: new Date().toISOString()
-            };
+      PRICES = next;
+      savePrices(PRICES);
+      showMsg(el.adminMsg, 'Збережено ✅ Ціни оновлено.', 'ok');
+      render();
+    });
 
-            // UI Loading State
-            btn.disabled = true;
-            btn.innerText = 'ВІДПРАВКА...';
-            btn.classList.add('opacity-75');
+    el.resetPricesBtn.addEventListener('click', () => {
+      resetPrices();
+      showMsg(el.adminMsg, 'Скинуто до стандартних значень ✅', 'ok');
+      openAdmin(); // repopulate with defaults
+      render();
+    });
 
-            // Send to Google Apps Script
-            fetch(APPS_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors', // Important for GAS
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData)
-            })
-            .then(() => {
-                feedback.className = 'p-3 rounded text-center text-sm bg-green-900/50 text-green-200 border border-green-700 block';
-                feedback.innerText = 'Замовлення успішно відправлено! Менеджер зв\'яжеться з вами.';
-                btn.innerText = 'ВІДПРАВЛЕНО';
-            })
-            .catch(err => {
-                feedback.className = 'p-3 rounded text-center text-sm bg-red-900/50 text-red-200 border border-red-700 block';
-                feedback.innerText = 'Помилка відправки. Спробуйте зателефонувати нам.';
-                btn.innerText = 'СПРОБУВАТИ ЩЕ';
-                btn.disabled = false;
-                console.error(err);
-            });
-        }
-
-        // --- UTILS ---
-        function copyEstimate() {
-            const text = `LAIR ORDER\n${displays.estimate.innerText.replace(/x/g, ' шт. - ').replace(/\n\s+/g, '\n')}\nРАЗОМ: ${displays.total.innerText}`;
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Кошторис скопійовано в буфер обміну!');
-            });
-        }
-
-        // --- ADMIN PANEL ---
-        function toggleAdminPanel() {
-            const modal = document.getElementById('admin-modal');
-            const inputsContainer = document.getElementById('admin-inputs');
-            
-            if (modal.classList.contains('hidden')) {
-                // Open
-                modal.classList.remove('hidden');
-                inputsContainer.innerHTML = '';
-                Object.keys(prices).forEach(key => {
-                    inputsContainer.innerHTML += `
-                        <div class="flex justify-between items-center">
-                            <label class="text-sm text-gray-400 capitalize">${key}</label>
-                            <input type="number" id="adm-${key}" value="${prices[key]}" class="bg-surface border border-gray-600 rounded w-24 p-1 text-right text-white">
-                        </div>
-                    `;
-                });
-            } else {
-                // Close
-                modal.classList.add('hidden');
-            }
-        }
-
-        function savePrices() {
-            Object.keys(prices).forEach(key => {
-                const val = document.getElementById(`adm-${key}`).value;
-                prices[key] = parseInt(val);
-                
-                // Update display price tags on UI
-                const displayTag = document.getElementById(`price-display-${key.replace('_hour', '')}`);
-                if(displayTag) {
-                    displayTag.innerText = prices[key] + (key === 'admin_hour' ? ' грн/год' : ' грн');
-                }
-            });
-            updateState(); // Re-calc total
-            toggleAdminPanel(); // Close modal
-        }
-
-        // Start
-        init();
-    </script>
+    /********************
+     * Minor UX: keep slider fill updated on resize / load
+     ********************/
+    window.addEventListener('load', () => rangeInputs.forEach(setRangeFill));
+  </script>
 </body>
 </html>
