@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CLIENT
+  ADMIN
+  MANAGER
+}
+
+enum LoyaltyTier {
+  NONE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum RentalType {
+  HOURLY
+  DAILY
+}
+
+enum OrderStatus {
+  CREATED
+  PENDING
+  IN_DELIVERY
+  ACTIVE
+  COMPLETED
+  CANCELED
+}
+
+enum DeviceType {
+  GAMING_LAPTOP
+  GAMING_PC
+  PS5
+  VR
+  MONITOR
+}
+
+enum TopupStatus {
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+enum PaymentProvider {
+  TELEGRAM_STARS
+  LIQPAY
+  OTHER
+}
+
+enum PaymentStatus {
+  CREATED
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+enum ReferralEventType {
+  FIRST_TOPUP_BONUS
+}
+
+enum ReferralEventStatus {
+  PENDING
+  PAID
+}
+
+model users {
+  id               String      @id @default(uuid())
+  telegram_id      BigInt?     @unique
+  phone            String?     @db.Text
+  role             UserRole    @default(CLIENT)
+  loyalty_tier     LoyaltyTier @default(NONE)
+  total_spent_uah  BigInt      @default(0)
+  balance_uah      BigInt      @default(0)
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
+  referrals        referrals[] @relation("referrer")
+  referral_events  referral_events[] @relation("referrer_event")
+  topups           topup_requests[]
+  payment_intents  payment_intents[]
+  orders           orders[]
+
+  @@index([phone])
+}
+
+model orders {
+  id                       String      @id @default(uuid())
+  user_id                  String?
+  user                     users?      @relation(fields: [user_id], references: [id])
+  client_name              String
+  client_phone             String
+  rental_type              RentalType
+  start_datetime           DateTime
+  duration_hours           Int?
+  duration_days            Int?
+  status                   OrderStatus @default(CREATED)
+  subtotal_uah             BigInt
+  discount_bundle_uah      BigInt      @default(0)
+  discount_loyalty_uah     BigInt      @default(0)
+  discount_referral_uah    BigInt      @default(0)
+  total_uah                BigInt
+  required_prepayment_uah  BigInt      @default(0)
+  created_at               DateTime    @default(now())
+  updated_at               DateTime    @updatedAt
+  items                    order_items[]
+  comments                 order_comments[]
+
+  @@index([status])
+  @@index([start_datetime])
+  @@index([client_phone])
+}
+
+model order_items {
+  id             String      @id @default(uuid())
+  order_id       String
+  order          orders      @relation(fields: [order_id], references: [id])
+  device_type    DeviceType
+  qty            Int
+  unit_price_uah BigInt
+  subtotal_uah   BigInt
+
+  @@index([order_id])
+}
+
+model pricing_devices {
+  device_type          DeviceType @id
+  hourly_price_uah     BigInt
+  daily_price_uah      BigInt
+  deposit_required_uah BigInt
+  is_active            Boolean    @default(true)
+}
+
+model discount_bundle_rules {
+  id            String   @id @default(uuid())
+  name          String
+  min_total_qty Int?
+  percent       Int
+  is_active     Boolean  @default(true)
+}
+
+model loyalty_tiers {
+  tier             LoyaltyTier @id
+  threshold_uah    BigInt
+  discount_percent Int
+  priority_support Boolean @default(false)
+}
+
+model referrals {
+  id               String   @id @default(uuid())
+  referrer_user_id String
+  invited_user_id  String?
+  referral_code    String   @unique
+  created_at       DateTime @default(now())
+  referrer         users    @relation("referrer", fields: [referrer_user_id], references: [id])
+  invited          users?   @relation("invited", fields: [invited_user_id], references: [id])
+}
+
+model referral_events {
+  id               String               @id @default(uuid())
+  referrer_user_id String
+  invited_user_id  String
+  event_type       ReferralEventType
+  bonus_uah        BigInt
+  status           ReferralEventStatus @default(PENDING)
+  created_at       DateTime            @default(now())
+  referrer         users               @relation("referrer_event", fields: [referrer_user_id], references: [id])
+  invited          users               @relation("invited_event", fields: [invited_user_id], references: [id])
+}
+
+model topup_requests {
+  id                     String        @id @default(uuid())
+  user_id                String
+  user                   users         @relation(fields: [user_id], references: [id])
+  amount_uah             BigInt
+  reference_code         String        @unique
+  status                 TopupStatus   @default(SUBMITTED)
+  admin_user_id          String?
+  evidence_telegram_file_id String?
+  rejection_reason       String?
+  created_at             DateTime      @default(now())
+  updated_at             DateTime      @updatedAt
+}
+
+model payment_intents {
+  id               String          @id @default(uuid())
+  user_id          String
+  user             users           @relation(fields: [user_id], references: [id])
+  provider         PaymentProvider
+  amount_uah       BigInt
+  currency         String          @default("UAH")
+  status           PaymentStatus   @default(CREATED)
+  provider_payload Json?
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+}
+
+model order_comments {
+  id             String   @id @default(uuid())
+  order_id       String
+  author_user_id String
+  comment        String
+  created_at     DateTime @default(now())
+  order          orders   @relation(fields: [order_id], references: [id])
+}
+
+model audit_logs {
+  id            String   @id @default(uuid())
+  actor_user_id String?
+  actor_role    String?
+  action_type   String
+  entity_type   String
+  entity_id     String
+  before        Json?
+  after         Json?
+  created_at    DateTime @default(now())
+
+  @@index([actor_user_id])
+  @@index([action_type])
+  @@index([created_at])
+}
+
+model config_items {
+  key   String @id
+  value Json
+}
+
