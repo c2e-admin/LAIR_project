@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LAIR Калькулятор</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-primary: #2D2D2D;
+      --bg-secondary: #232323;
+      --bg-tertiary: #1B1B1B;
+      --text-primary: #F2F2F2;
+      --text-secondary: #B8B8B8;
+      --accent: #E05A47;
+      --accent-hover: #FF6B59;
+    }
+    body { background: var(--bg-primary); color: var(--text-primary); font-family: 'Inter', system-ui; }
+    .card { background: var(--bg-secondary); border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); padding: 18px; }
+    .btn-primary { background: var(--accent); color: #fff; border-radius: 14px; padding: 12px 16px; font-weight: 600; transition: all .2s; }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 16px; }
+    input, select { background: var(--bg-tertiary); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; color: var(--text-primary); width: 100%; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="max-w-3xl mx-auto p-4 space-y-4">
+    <div class="card">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="text-sm text-[var(--text-secondary)]">Крок 1/4</div>
+        <div class="text-lg font-semibold">Формат</div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <button id="hourlyBtn" class="btn-secondary">Погодинно</button>
+        <button id="dailyBtn" class="btn-secondary">Погодобово</button>
+      </div>
+      <p class="text-xs text-[var(--text-secondary)] mt-2">Мінімум 3 години. Можна більше — ціна перераховується автоматично.</p>
+    </div>
+
+    <div class="card">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="text-sm text-[var(--text-secondary)]">Крок 2/4</div>
+        <div class="text-lg font-semibold">Обладнання</div>
+      </div>
+      <div class="space-y-3" id="items"></div>
+    </div>
+
+    <div class="card">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="text-sm text-[var(--text-secondary)]">Крок 3/4</div>
+        <div class="text-lg font-semibold">Дата і час</div>
+      </div>
+      <input id="start" type="datetime-local" class="mb-3" />
+      <input id="duration" type="number" min="3" value="3" class="mb-2" />
+    </div>
+
+    <div class="card">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="text-sm text-[var(--text-secondary)]">Крок 4/4</div>
+        <div class="text-lg font-semibold">Підтвердження</div>
+      </div>
+      <div id="breakdown" class="space-y-1 text-sm text-[var(--text-secondary)]"></div>
+      <div class="flex justify-between items-center mt-3">
+        <div class="text-xl font-semibold" id="total">0 грн</div>
+        <button id="submitBtn" class="btn-primary">Надіслати</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const pricing = {
+      GAMING_LAPTOP: { name: 'Gaming Laptop', hourly: 600, daily: 3500 },
+      GAMING_PC: { name: 'Gaming PC', hourly: 500, daily: 3000 },
+      PS5: { name: 'PS5', hourly: 400, daily: 2500 },
+      VR: { name: 'VR', hourly: 350, daily: 2000 },
+      MONITOR: { name: 'Монітор', hourly: 150, daily: 700 },
+    };
+    const state = { rental_type: 'HOURLY', duration_hours: 3, items: [] };
+    const itemsDiv = document.getElementById('items');
+    Object.entries(pricing).forEach(([key, val]) => {
+      const row = document.createElement('div');
+      row.className = 'flex items-center justify-between border-b border-white/10 pb-2';
+      row.innerHTML = `<div><div class='font-semibold'>${val.name}</div><div class='text-xs text-[var(--text-secondary)]'>${val.hourly} грн/год · ${val.daily} грн/доба</div></div><div class='flex items-center gap-2'><button class='btn-secondary text-lg px-3' data-dec='${key}'>-</button><div id='qty-${key}'>0</div><button class='btn-primary text-lg px-3' data-inc='${key}'>+</button></div>`;
+      itemsDiv.appendChild(row);
+    });
+    itemsDiv.addEventListener('click', (e) => {
+      const inc = e.target.getAttribute('data-inc');
+      const dec = e.target.getAttribute('data-dec');
+      if (inc) changeQty(inc, 1);
+      if (dec) changeQty(dec, -1);
+    });
+    function changeQty(key, delta) {
+      const found = state.items.find((i) => i.device_type === key);
+      if (!found) state.items.push({ device_type: key, qty: Math.max(delta,0) });
+      else found.qty = Math.max(0, found.qty + delta);
+      document.getElementById(`qty-${key}`).innerText = state.items.find((i) => i.device_type === key)?.qty || 0;
+      calc();
+    }
+    document.getElementById('hourlyBtn').onclick = () => { state.rental_type = 'HOURLY'; calc(); };
+    document.getElementById('dailyBtn').onclick = () => { state.rental_type = 'DAILY'; calc(); };
+    document.getElementById('duration').oninput = (e) => { state.duration_hours = Number(e.target.value); calc(); };
+    function calc() {
+      let subtotal = 0; let qty = 0;
+      state.items.forEach((i) => {
+        qty += i.qty;
+        const cfg = pricing[i.device_type];
+        if (!cfg) return;
+        const price = state.rental_type === 'HOURLY' ? cfg.hourly : cfg.daily;
+        const duration = state.rental_type === 'HOURLY' ? Math.max(state.duration_hours, 3) : 1;
+        subtotal += price * i.qty * duration;
+      });
+      document.getElementById('breakdown').innerText = `Сума: ${subtotal} грн | Позицій: ${qty}`;
+      document.getElementById('total').innerText = `${subtotal} грн`;
+    }
+    calc();
+  </script>
+</body>
+</html>

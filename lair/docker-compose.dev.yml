@@ -1,0 +1,42 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lair
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  backend:
+    build: ./backend
+    command: npm run dev
+    env_file: .env.example
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/lair
+    volumes:
+      - ./backend:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+  bot:
+    build: ./bot
+    env_file: .env.example
+    environment:
+      BACKEND_URL: http://backend:3000
+    depends_on:
+      - backend
+  nginx:
+    image: nginx:1.25-alpine
+    volumes:
+      - ./nginx/dev.conf:/etc/nginx/nginx.conf:ro
+      - ./web:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+volumes:
+  pgdata:
